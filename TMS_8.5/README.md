@@ -1,6 +1,6 @@
 TMS Remote API documentation for version 8.5
 
-###Contents
+### Contents
 TMSRemote.proto - defines TMS Remote gRPC service
 
 *.proto - other proto files used by TMSRemote.proto
@@ -9,7 +9,7 @@ java-sample/TMSClientApp.java - java sample
 
 python-sample/main.py - python sample
 
-###Instructions how to run Python sample
+### Instructions how to run Python sample
 
 1. All dependencies from requirements.txt should be pre-installed
 `pip install -r requirements.txt`
