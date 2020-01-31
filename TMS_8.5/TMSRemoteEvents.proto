@@ -1,0 +1,245 @@
+syntax = "proto3";
+package com.inforeach.eltrader.tms.domain.portfolio.client.grpc.generated;
+import "TMSRemoteCommon.proto";
+
+// Contains events sent by the TMS
+
+//See main service comments about subscription and related feed statuses.
+enum FeedStatus {
+    Disconnected = 0;
+    Reconnected = 1;
+    InitialStateReceived = 2;
+}
+
+//
+message PortfolioEvent {
+    oneof event {
+        PortfolioAddedEvent added = 1;
+        PortfolioUpdatedEvent updated = 2;
+        PortfolioRemovedEvent removed = 3;
+        PortfolioFilteredOutEvent filteredOut = 4;
+
+        FeedStatus feedStatus = 5;
+    }
+
+    message PortfolioAddedEvent {
+        string portfolioName = 1;
+        Fields fields = 2;
+    }
+
+    message PortfolioUpdatedEvent {
+        string portfolioName = 1;
+        Fields fields = 2;
+    }
+
+    message PortfolioRemovedEvent {
+        string portfolioName = 1;
+    }
+
+    // Happens when particular market portfolio is "filtered out" due
+    // to some changes (so it doesn't match subscription filter anymore).
+    // That is, application subscribed to portfolio data with filtering expression,
+    // and as a result of some changes in portfolio's fields the portfolio
+    // stops satisfying the filtering expression.
+    message PortfolioFilteredOutEvent {
+        string portfolioName = 1;
+    }
+}
+
+message TargetEvent {
+    oneof event {
+        TargetAddedEvent added = 1;
+        TargetUpdatedEvent updated = 2;
+        TargetRemovedEvent removed = 3;
+        TargetFilteredOutEvent filteredOut = 4;
+
+        TargetPausedEvent paused = 5;
+        TargetResumedEvent resumed = 6;
+        TargetTerminatedEvent terminated = 7;
+
+        FeedStatus feedStatus = 8;
+    }
+
+    message TargetAddedEvent {
+        int64 targetId = 1;
+        Fields fields = 2;
+    }
+
+    message TargetUpdatedEvent {
+        int64 targetId = 1;
+        Fields fields = 2;
+    }
+
+    message TargetRemovedEvent {
+        int64 targetId = 1;
+    }
+
+    //See comments for portfolio "filtered out" event. Same is for the target subscription.
+    message TargetFilteredOutEvent {
+        int64 targetId = 1;
+    }
+
+    message TargetPausedEvent {
+        int64 targetId = 1;
+    }
+
+    message TargetResumedEvent {
+        int64 targetId = 1;
+    }
+
+    message TargetTerminatedEvent {
+        int64 targetId = 1;
+    }
+}
+
+
+message OrderEvent {
+    oneof event {
+        OrderAddedEvent added = 1;
+        OrderUpdatedEvent updated = 2;
+        OrderFilteredOutEvent filteredOut = 3;
+        FeedStatus feedStatus = 4;
+    }
+
+    message OrderAddedEvent {
+        string orderId = 1;
+        Fields fields = 2;
+    }
+
+    message OrderUpdatedEvent {
+        string orderId = 1;
+        Fields fields = 2;
+    }
+
+    //See comments for portfolio "filtered out" event. Same is for the orders subscription.
+    message OrderFilteredOutEvent {
+        string orderId = 1;
+    }
+}
+
+message ReportEvent {
+    oneof event {
+        RecordAddedEvent added = 1;
+        RecordUpdatedEvent updated = 2;
+        RecordRemovedEvent removed = 3;
+        RecordFilteredOutEvent filteredOut = 4;
+        FeedStatus feedStatus = 5;
+    }
+
+    message RecordAddedEvent {
+        string recordId = 1;
+        Fields fields = 2;
+    }
+
+    message RecordUpdatedEvent {
+        string recordId = 1;
+        Fields fields = 2;
+    }
+
+    message RecordRemovedEvent {
+        string recordId = 1;
+    }
+
+    //See comments for portfolio "filtered out" event. Same is for the records subscription.
+    message RecordFilteredOutEvent {
+        string recordId = 1;
+    }
+}
+
+message InstrumentPositionEvent {
+    oneof event {
+        InstrumentPositionAddedEvent added = 1;
+        InstrumentPositionUpdatedEvent updated = 2;
+        FeedStatus feedStatus = 3;
+    }
+
+    message InstrumentPositionAddedEvent {
+        string instrument = 1;
+        Fields fields = 2;
+    }
+
+    message InstrumentPositionUpdatedEvent {
+        string instrument = 1;
+        Fields fields = 2;
+    }
+}
+
+message CashPositionEvent {
+    oneof event {
+        CashPositionAddedEvent added = 1;
+        CashPositionUpdatedEvent updated = 2;
+        FeedStatus feedStatus = 3;
+    }
+
+    message CashPositionAddedEvent {
+        string currency = 1;
+        Fields fields = 2;
+    }
+
+    message CashPositionUpdatedEvent {
+        string currency = 1;
+        Fields fields = 2;
+    }
+}
+
+message CategoryPositionEvent {
+    oneof event {
+        CategoryPositionAddedEvent added = 1;
+        CategoryPositionUpdatedEvent updated = 2;
+        FeedStatus feedStatus = 3;
+    }
+
+    message CategoryPositionAddedEvent {
+        string categoryName = 1;
+        string categoryType = 2;
+        Fields fields = 3;
+    }
+
+    message CategoryPositionUpdatedEvent {
+        string categoryName = 1;
+        string categoryType = 2;
+        Fields fields = 3;
+    }
+}
+
+message FIXMessageEvent {
+    string connectionName = 1;
+    FIXFields fields = 2;
+}
+
+message MarketDataEvent {
+    oneof event {
+        MarketDataUpdate update = 1;
+        FeedStatus feedStatus = 2;
+    }
+
+    message MarketDataUpdate {
+        string instrument = 1;
+        Fields fields = 2;
+    }
+}
+
+message CustomDataEvent {
+    oneof event {
+        CustomDataUpdate update = 1;
+        FeedStatus feedStatus = 2;
+    }
+
+    message CustomDataUpdate {
+        string providerName = 1;
+        string recordId = 2;
+        Fields fields = 3;
+    }
+}
+
+message ForexQuoteEvent {
+    oneof event {
+        ForexQuoteUpdate update = 1;
+        FeedStatus feedStatus = 2;
+    }
+
+    message ForexQuoteUpdate {
+        string recordId = 1;
+        Fields fields = 2;
+    }
+}

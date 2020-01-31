@@ -1,0 +1,318 @@
+syntax = "proto3";
+package com.inforeach.eltrader.tms.domain.portfolio.client.grpc.generated;
+import "TMSRemoteCommon.proto";
+
+// Contains requests sent to the TMS
+
+message LoginRequest {
+    string user = 1;
+    string password = 2;
+}
+
+//START SNIPPET: CreateMarketPortfolioRequest
+message CreateMarketPortfolioRequest {
+    enum PortfolioType {
+        UNDEFINED = 0; // default
+        Index = 1;
+        Pure = 2;
+        Linked = 3;
+        Correlated = 4;
+        Dynamic = 5;
+        Staged = 6;
+    }
+
+    string name = 1; //Unique name of the new portfolio
+    PortfolioType type = 2; //A type of the portfolio, required field.
+    Fields fields = 3; //Fields to be set in the new portfolio
+}
+//END SNIPPET: CreateMarketPortfolioRequest
+
+//START SNIPPET: ModifyPortfolioRequest
+message ModifyPortfolioRequest {
+    string name = 1; //A name of the existing portfolio.
+    Fields fields = 2; //Fields to modify in the portfolio.
+}
+//END SNIPPET: ModifyPortfolioRequest
+
+//START SNIPPET: RemovePortfolioRequest
+message RemovePortfolioRequest {
+    string name = 1; //A name of the existing portfolio.
+}
+//END SNIPPET: RemovePortfolioRequest
+
+//START SNIPPET: AddTargetsRequest
+message AddTargetsRequest {
+    string portfolio = 1; //A name of the portfolio to add targets to.
+    repeated Fields fields = 2; //Fields of the added target(s)
+}
+//END SNIPPET: AddTargetsRequest
+
+//START SNIPPET: ModifyTargetsRequest
+message ModifyTargetsRequest {
+    repeated int64 targetId = 1; //Id(s) of the target(s) to modify (target ids returned when new targets are added).
+    repeated Fields fields = 2; //If only one fields container - all targets will be modified with it. Otherwise there must be a field container per target.
+}
+//END SNIPPET: ModifyTargetsRequest
+
+//START SNIPPET: TargetStatusRequests
+message TerminateMarketTargetsRequest {
+    repeated int64 targetId = 1; //Id(s) of the target(s) to terminate (target ids returned when new targets are added).
+    bool cancelOpenOrders = 2; //indicates whether all open outstanding (sent to market) orders for specified targets should be canceled
+}
+
+message PauseMarketTargetsRequest {
+    repeated int64 targetId = 1;//Id(s) of the target(s) to pause (target ids returned when new targets are added).
+    bool cancelOpenOrders = 2; //indicates whether all open outstanding (sent to market) orders for specified targets should be canceled
+}
+
+message ResumeMarketTargetsRequest {
+    repeated int64 targetId = 1;//Id(s) of the target(s) to resume (target ids returned when new targets are added).
+}
+//END SNIPPET: TargetStatusRequests
+
+message ReleaseAggregatedStatedTargetsRequest {
+    string marketPortfolio = 1; // Name of market portfolio to release targets
+    repeated int64 targetId = 12;//Id(s) of the aggregated target(s) to release
+}
+
+//START SNIPPET: SendOrderRequest
+// Can have
+// - only message(s) for non-target order sending
+// - only target ids for sending orders of those targets
+// - or both, in this case their count must match, and each message is sent for the corresponding target
+message SendOrdersRequest {
+    repeated int64 targetId  = 1;
+    repeated FIXFields message = 2;
+}
+//END SNIPPET: SendOrderRequest
+
+
+//START SNIPPET: ModifyOrderRequest
+//orderIds and messages must match each others count
+message ModifyOrdersRequest {
+    repeated string orderId  = 1;
+    repeated FIXFields message = 2;
+}
+//END SNIPPET: ModifyOrderRequest
+
+
+//START SNIPPET: CancelOrderRequest
+//Messages are optional. If specified their count must match the orderIds count.
+message CancelOrdersRequest {
+    repeated string orderId  = 1;
+    repeated FIXFields message = 2;
+}
+//END SNIPPET: CancelOrderRequest
+
+//START SNIPPET: OrderStatusRequests
+message ConfirmOrdersRequest {
+    repeated FIXFields message = 1;
+    bool outPreviousRequests = 2;
+}
+
+message OutOnOrdersRequest {
+    repeated FIXFields message = 1;
+    bool updateBrokerOrders = 2;
+}
+//END SNIPPET: OrderStatusRequests
+
+//START SNIPPET: CreateStagedPortfolioRequest
+message CreateStagedPortfolioRequest {
+    string name = 1; //Unique name of the new portfolio
+    string clientName = 2; //Name of the client (optional)
+    string marketPortfolioForAutoRelease = 3; // Name of market portfolio for auto-release (optional)
+    Fields fields = 4; //Fields to be set in the new portfolio
+}
+//END SNIPPET: CreateStagedPortfolioRequest
+
+message SubscribeForPortfoliosRequest {
+    bool skipRecordUpdates = 1; //Set it to "true" in case listener is not interested in record updates.
+    string filter = 2; //Filtering expression. Events sent for portfolios matching the filter.
+    repeated string field = 3;//Fields to be sent. All fields will be sent if not set.
+}
+
+//START SNIPPET: SubscribeForMarketTargetsRequest
+message SubscribeForTargetsRequest {
+    string portfolio = 1; //Portfolio of the targets to subscribe for.
+    bool skipRecordUpdates = 2; //Set it to "true" in case listener is not interested in record updates.
+    string filter = 3;  //Filtering expression. Events sent for targets matching the filter.
+    repeated string field = 4; //Fields to be sent. All fields will be sent if not set.
+}
+//END SNIPPET: SubscribeForMarketTargetsRequest
+
+message SubscribeForOrdersRequest {
+    string filter = 1;  //Filtering expression. Events sent for orders matching the filter.
+    repeated string field = 2; //Fields to be sent. All fields will be sent if not set.
+}
+
+message SubscribeForInstrumentPositionsRequest {
+    string categoryType = 1; //"Global" or empty for the global position instruments
+    string categoryName = 2; //The name of the category, e.g. "Account1" for the categoryType="Account"
+    string instrument = 3; //If empty will subscribe to all instruments in a category
+}
+
+message SubscribeForCashPositionsRequest {
+    string categoryType = 1; //"Global" or empty for the global position currencies
+    string categoryName = 2;//The name of the category, e.g. "Account1" for the categoryType="Account"
+    string currency = 3; //If empty will subscribe to all currencys in a category
+}
+
+message SubscribeForCategoryPositionsRequest {
+    string categoryType = 1; //"Global" or empty for the global position
+    string categoryName = 2;//The name of the category, e.g. "Account1" for the categoryType="Account"
+}
+
+message SubscribeForFIXMessagesRequest {
+    repeated string connectionName = 1; // Name of the connection for messages to subscribe
+    string filter = 2; // Filtering expression
+    bool skipAppMessages = 3; // Set it to "true" in case listener is not interested in application messages
+    bool skipAdminMessages = 4; // Set it to "true" in case listener is not interested in application messages
+    repeated int32 field = 5; // Fields to be sent. All fields will be sent if not set.
+}
+
+message SubscribeForReportRequest {
+    string domainManagerName = 1; // Name of the domain manager which manages the report
+    string reportName = 2; // Name of the report to subscribe for data
+    string level = 3; // Name of tree level to subscribe for level nodes data (is required for tree reports)
+    string filter = 4; // Filtering expression
+    repeated string field = 5; // Fields to be sent. All fields will be sent if not set.
+}
+
+message SubscribeForMarketDataRequest {
+    repeated string instrument = 1; // Instrument(s) to subscribe
+    repeated string field = 2; // Fields to be sent. All fields will be sent if not set.
+}
+
+message SubscribeForCustomDataRequest {
+    string dataSourceName = 1; // Name of data source
+    repeated string recordId = 2; // Record(s) to subscribe
+    repeated string field = 3; // Fields to be sent. All fields will be sent if not set.
+}
+
+message SubscribeForForexQuotesRequest {
+    string facilityName = 1; // Name of facility
+    string providerName = 2; // Name of provider, if not specified then request is sent to all providers.
+    string symbol = 3;
+    repeated string field = 4; // Fields to be sent. All fields will be sent if not set.
+
+    oneof type {
+        Spot spot = 5;
+        Forward forward = 6;
+        Ndf ndf = 7;
+        Swap swap = 8;
+    }
+
+    message Spot {
+        string currency = 1;
+        double quantity = 2;
+    }
+
+    message Forward {
+        string currency = 1;
+        double quantity = 2;
+        int64 forwardDate = 3;
+    }
+
+    message Ndf {
+        string currency = 1;
+        double quantity = 2;
+        int64 settlementDate = 3;
+        string settlementCurrency = 4;
+        int64 fixingDate = 5;
+    }
+
+    message Swap {
+        string nearCurrency = 1;
+        double nearQuantity = 2;
+        int64  nearDate= 3;
+        string farCurrency = 4;
+        double farQuantity = 5;
+        int64  farDate = 6;
+    }
+}
+
+//START SNIPPET: AlertsAPI
+message PostAlertMessageRequest {
+    repeated string user = 1; // List of users which should be notified about this alert
+    repeated string userGroup = 2; // List of user groups which should be notified about this alert
+    string type = 3; // Short description of the alert type, e.g. "Error", "Warning", etc. In TMS' GUI appears in the "Name" column of the "Alert Console".
+    string description = 4; // Verbose description of the alert message or alert message itself. In TMS' GUI appears in the "Description" column of the "Alert Console".
+    string details = 5; // Optional details for this alert message. In TMS' GUI appears on "React" button click in the "Alert Console".
+    bool urgent = 6; // Indicates whether message is urgent. In TMS' GUI urgent alerts will show/bring "Alert Console" to front even if it's not configured to show/bring console to front on new alert.
+}
+//END SNIPPET: AlertsAPI
+
+//START SNIPPET: ReportingAPI
+message ReportRequest {
+    string domainManagerName = 1; // Name of the domain manager which manages the report
+    string reportName = 2; // Name of the report
+}
+
+message ReportAvailableResponse {
+    bool available = 1;
+}
+
+message CreateReportRequest {
+    string domainManagerName = 1; // Name of the domain manager which manages the report
+    string reportSpec = 2; // XML representation of the report specification (is mutually exclusive with reportSpecResource parameter)
+    string reportSpecResource = 3; // path to file with XML representation of the report specification (is mutually exclusive with reportSpec parameter)
+}
+//END SNIPPET: ReportingAPI
+
+//START SNIPPET: SecurityMasterAPI
+message InstrumentInfosRequest {
+    repeated string instrument = 1;
+}
+
+message InstrumentInfosByAlternateIdRequest {
+    string alternateIdSource = 1;
+    string alternateInstrId = 2;
+}
+
+message InstrumentInfosResponse {
+    repeated Fields instrumentInfo = 1;
+}
+
+message IdsResponse {
+    repeated string id = 1;
+}
+
+message ExchangeInfosRequest {
+    repeated string exchange = 1;
+}
+
+message ExchangeInfosResponse {
+    repeated Fields exchangeInfo = 1;
+}
+
+message VolumeCurveRequest {
+    string instrument = 1;
+    int32 numberOfDays = 2; // optional
+    int32 barIntervalInMinutes = 3; // optional
+}
+
+message VolumeCurveResponse {
+    string instrument = 1;
+    int32 numberOfDays = 2;
+    int32 barIntervalInMinutes = 3;
+    int64 startTimeOnly = 4;
+    string timeZone = 5;
+    string description = 6;
+    double totalVolume = 7;
+    repeated Bar bar = 8;
+    
+    message Bar {
+        int64 startTime = 1;        
+        double openPx = 2;
+        double closePx = 3;
+        double highPx = 4;
+        double lowPx = 5;
+        double volume = 6;
+        double tradedValue = 7;
+        double numOfTrades = 8;
+        double volatility = 9;
+        double avgQuotedSpread = 10;
+        double avgEffectiveSpread = 11;
+    }
+}
+//END SNIPPET: SecurityMasterAPI

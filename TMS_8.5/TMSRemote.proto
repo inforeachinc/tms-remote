@@ -1,0 +1,259 @@
+syntax = "proto3";
+
+package com.inforeach.eltrader.tms.domain.portfolio.client.grpc.generated;
+
+option java_multiple_files = false;
+option java_outer_classname = "TMSRemoteProto";
+
+import "TMSRemoteEvents.proto";
+import "TMSRemoteRequests.proto";
+import "TMSRemoteCommon.proto";
+
+//  Represents the communication API with the remote TMS (trade management system).
+//
+//  It allows to:
+//   Manage portfolios (including their targets and orders).
+//    - create/modify portfolios, listen to the portfolios data
+//    - add/modify/control portfolio targets, listen to the targets data
+//    - send/modify/cancel portfolio orders, listen to the orders data
+//   Send/modify/cancel non-portfolio orders.
+//   Subscribe for the positions.
+//
+//  This API contains a set of subscribeFor...() methods.
+
+//START SNIPPET: Subscription Description
+
+//  When particular stream is established for designated event flow it first receives whole
+//  data state, e.g. if order data listener is subscribed for all orders data and there were
+//  orders already at that point, then this listener will first get an "order added"
+//  notification per existing order and then when whole state is processed already a feed status
+//  "InitialStateReceived" will be delivered.
+//  After the whole data state is processes designated listener will receive notifications
+//  in real-time.
+//
+//  There are two layers of connectivity participating
+//     - gRPC layer
+//     - TMS layer
+//
+//  If connection is broken at gRPC layer the client app is notified through the exceptions or gRPC channel status events.
+//  It's up to the application how gRPC disconnection is handled. The app may stop, may try to establish connection through different gRPC channel or
+//  try connecting through the same channel untill successfull. Then new subscription can be made.
+//
+//  For the TMS layer connectivity there are feed status events.
+//  If connection is broken then a feed status "Disconnected" will arrive.
+//  System tries to restore connection automatically. After successful restoring a feed status "Reconnected"
+//  is received and whole data state is received again. This feature has to be taken into account
+//  when some actions are done upon "xxxx added" notification.
+//
+//  Very often client application needs to track changes in data and maintain
+//  up-to-date master map of data records. This is typically solved by having an appropriate
+//  data feed listener. During processing of data state and following "Added"
+//  notifications client app stores received record into collection (usually map of record ID to
+//  a record) and on "Removed" notifications do clean up and removes
+//  corresponding item from the collection. In order to maintain up-to-date field values in
+//  stored data records client app on "Updated" notifications updates stored records with provided record update values.
+
+//END SNIPPET: Subscription Description
+
+service TMSRemote {
+    // Sets current user for whole gRPC session
+    rpc login (LoginRequest) returns (Void);
+
+    // Creates a new portfolio. See request comments for the parameters details.
+    rpc createMarketPortfolio (CreateMarketPortfolioRequest) returns (Void);
+    // Modifies existing portfolio. See request comments for the parameters details.
+    rpc modifyMarketPortfolio (ModifyPortfolioRequest) returns (Void);
+    // Removes existing portfolio. See request comments for the parameters details.
+    rpc removeMarketPortfolio (RemovePortfolioRequest) returns (Void);
+    // Gets list of existing portfolio names. In case up-to-date portfolio information is needed the application should
+    // instead subscribe to the portfolios using _subscribeForMarketPortfolios_ call.
+    rpc getMarketPortfolioNames (Void) returns (PortfolioNames);
+    // Gets portfolio records snapshot. In case up-to-date portfolio information is needed the application should
+    // instead subscribe to the portfolios using _subscribeForMarketPortfolios_ call.
+    rpc getMarketPortfolios (PortfolioNames) returns (Portfolios);
+
+    // Adds targets to the existing portfolio. See request comments for the parameters details.
+    // Returns the ids of the newly added targets. Those ids can be later used for target operations like modify/pause/resume/terminate
+    rpc addMarketTargets (AddTargetsRequest) returns (TargetIds);
+    // Modifies existing targets. See request comments for the parameters details.
+    rpc modifyMarketTargets (ModifyTargetsRequest) returns (Void);
+    // Removes existing targets.
+    rpc removeMarketTargets (TargetIds) returns (Void);
+    // Gets snapshot of target IDs from existing portfolio. In case up-to-date target information is needed the application should
+    // instead subscribe to the targets using _subscribeForMarketTargets_ call.
+    rpc getMarketPortfolioTargetIds(PortfolioNames) returns (TargetIds);
+    // Gets target records snapshot. In case up-to-date target information is needed the application should
+    // instead subscribe to the targets using _subscribeForMarketTargets_ call.
+    rpc getMarketTargets(TargetIds) returns (Targets);
+
+    //START SNIPPET: Target Status RPC
+
+    // Terminates active/paused/suspended targets with specified IDs.
+    // Already terminated targets cannot be terminated once again and
+    // cannot be resumed/paused/suspended anymore. Terminated targets cannot be
+    // traded in any way. For terminated targets TgtQty (if defined) is being reduced
+    // to the value of "Released" field.
+    // See request comments for the parameters details.
+    rpc terminateMarketTargets(TerminateMarketTargetsRequest) returns (Void);
+
+    // Pauses active targets with specified IDs.
+    // Already paused (or auto-paused) and terminated targets cannot be paused.
+    // Paused targets aren't traded by AutoTrader analytic, but can be traded manually
+    // and by client application.
+    // See request comments for the parameters details.
+    rpc pauseMarketTargets(PauseMarketTargetsRequest) returns (Void);
+
+    // Resumes (makes active) previously paused/auto-paused targets with specified IDs.
+    // Active and terminated targets cannot be resumed. Active targets can be traded
+    // manually, by client application and by AutoTrader analytic.
+    // See request comments for the parameters details.
+    rpc resumeMarketTargets(ResumeMarketTargetsRequest) returns (Void);
+
+    //END SNIPPET: Target Status RPC
+
+    // Sends either portfolio or non-portfolio orders. See request comments for the parameters details.
+    rpc sendOrders(SendOrdersRequest) returns (Void);
+    // Modifies orders. See request comments for the parameters details.
+    rpc modifyOrders(ModifyOrdersRequest) returns (Void);
+    // Cancel orders. See request comments for the parameters details.
+    rpc cancelOrders(CancelOrdersRequest) returns (Void);
+
+    //START SNIPPET: Order Status RPC
+    // Methods below just send execution reports. If FIXTag_SingleOrderTransactionId field is present in message then TMS adds all required FIX tags
+    // for appropriate order
+    rpc confirmOrders (ConfirmOrdersRequest) returns (Void);
+    rpc fillOrders (FIXMessagesRequest) returns (Void);
+    rpc rejectOrders (FIXMessagesRequest) returns (Void);
+    rpc outOnOrders (OutOnOrdersRequest) returns (Void);
+    rpc statusOrders (FIXMessagesRequest) returns (Void);
+    //END SNIPPET: Order Status RPC
+
+    //START SNIPPET: Stop All Trading
+    // Stops all trading (pauses all autotraders, cancels all open orders)
+    rpc stopAllTrading(Void) returns (Void);
+    //END SNIPPET: Stop All Trading
+
+    // Creates a new staged portfolio. See request comments for the parameters details.
+    rpc createStagedPortfolio (CreateStagedPortfolioRequest) returns (Void);
+    // Modifies existing staged portfolio. See request comments for the parameters details.
+    rpc modifyStagedPortfolio (ModifyPortfolioRequest) returns (Void);
+    // Removes existing staged portfolio. See request comments for the parameters details.
+    rpc removeStagedPortfolio (RemovePortfolioRequest) returns (Void);
+    // Gets list of existing staged portfolio names. In case up-to-date portfolio information is needed the application should
+    // instead subscribe to the portfolios using _subscribeForStagedPortfolios_ call.
+    rpc getStagedPortfolioNames (Void) returns (PortfolioNames);
+    // Gets portfolio records snapshot. In case up-to-date portfolio information is needed the application should
+    // instead subscribe to the portfolios using _subscribeForStagedPortfolios_ call.
+    rpc getStagedPortfolios (PortfolioNames) returns (Portfolios);
+
+    // Adds staged targets to the existing portfolio. See request comments for the parameters details.
+    // Returns the ids of the newly added targets.
+    rpc addStagedTargets (AddTargetsRequest) returns (TargetIds);
+    // Modifies existing staged targets. See request comments for the parameters details.
+    rpc modifyStagedTargets (ModifyTargetsRequest) returns (Void);
+    // Removes existing staged targets. See request comments for the parameters details.
+    rpc removeStagedTargets (TargetIds) returns (Void);
+    // Gets snapshot of staged target IDs from existing portfolio. In case up-to-date target information is needed the application should
+    // instead subscribe to the targets using _subscribeForMarketTargets_ call.
+    rpc getStagedPortfolioTargetIds(PortfolioNames) returns (TargetIds);
+    // Gets staged target records snapshot. In case up-to-date target information is needed the application should
+    // instead subscribe to the targets using _subscribeForStagedTargets_ call.
+    rpc getStagedTargets (TargetIds) returns (Targets);
+    // Gets snapshot of aggregated staged target IDs from existing portfolio.
+    rpc getStagedPortfolioAggregatedTargetIds(PortfolioNames) returns (TargetIds);
+    // Gets aggregated staged target records snapshot.
+    rpc getAggregatedStagedTargets (TargetIds) returns (Targets);
+    // Releases aggregated staged targets to market
+    rpc releaseAggregatedStagedTargets (ReleaseAggregatedStatedTargetsRequest) returns (Void);
+    // Unreleases aggregated staged targets from market
+    rpc unreleaseAggregatedStagedTargets (TargetIds) returns (Void);
+
+
+    //START SNIPPET: Ping API
+    // Indended for the periodic calls from the client to make sure the connectivity with the server is maintained.
+    // The service will return the parameter value.
+    rpc ping(PingInfo) returns (PingInfo);
+    //END SNIPPET: Ping API
+
+    //START SNIPPET: Alerts API
+    // Posts alert message to user's view. See request comments for the parameters details.
+    rpc postAlertMessage(PostAlertMessageRequest) returns (Void);
+    //END SNIPPET: Alerts API
+
+    //START SNIPPET: Reporting API
+    // Checks if report is registered on report manager
+    rpc isReportAvailable (ReportRequest) returns (ReportAvailableResponse);
+    // Creates report from specification and registers it on report manager
+    rpc createReport (CreateReportRequest) returns (Void);
+    // Unregisters report from report manager
+    rpc removeReport (ReportRequest) returns (Void);
+    //END SNIPPET: Reporting API
+
+    //START SNIPPET: Security Master API
+    rpc getInstrumentInfos (InstrumentInfosRequest) returns (InstrumentInfosResponse);
+    rpc getInstrumentInfosByAlternateId (InstrumentInfosByAlternateIdRequest) returns (InstrumentInfosResponse);
+    rpc getInstrumentAlternateIdSources (Void) returns (IdsResponse);
+
+    rpc getExchangeIds (Void) returns (IdsResponse);
+    rpc getExchangeInfos (ExchangeInfosRequest) returns (ExchangeInfosResponse);
+    rpc getExchangeInfosByAlternateId (ExchangeInfosRequest) returns (ExchangeInfosResponse);
+
+    rpc getVolumeCurve (VolumeCurveRequest) returns (VolumeCurveResponse);
+    //END SNIPPET: Security Master API
+
+    rpc getMarketDataRecords (SubscribeForMarketDataRequest) returns (Records);
+    rpc getCustomDataRecords (SubscribeForCustomDataRequest) returns (Records);
+
+    // See service comments on top related to the subscriptions.
+
+    //START SNIPPET: Subscription API
+    rpc subscribeForMarketPortfolios (stream SubscribeForPortfoliosRequest) returns (stream PortfolioEvent);
+    rpc subscribeForMarketTargets (stream SubscribeForTargetsRequest) returns (stream TargetEvent);
+    rpc subscribeForOrders (stream SubscribeForOrdersRequest) returns (stream OrderEvent);
+    rpc subscribeForStagedPortfolios (stream SubscribeForPortfoliosRequest) returns (stream PortfolioEvent);
+    rpc subscribeForStagedTargets (stream SubscribeForTargetsRequest) returns (stream TargetEvent);
+
+    rpc subscribeForInstrumentPositions (stream SubscribeForInstrumentPositionsRequest) returns (stream InstrumentPositionEvent);
+    rpc subscribeForCategoryPositions (stream SubscribeForCategoryPositionsRequest) returns (stream CategoryPositionEvent);
+    rpc subscribeForCashPositions (stream SubscribeForCashPositionsRequest) returns (stream CashPositionEvent);
+
+    rpc subscribeForFIXMessages(stream SubscribeForFIXMessagesRequest) returns (stream FIXMessageEvent);
+
+    rpc subscribeForMarketData(stream SubscribeForMarketDataRequest) returns (stream MarketDataEvent);
+    rpc subscribeForCustomData(stream SubscribeForCustomDataRequest) returns (stream CustomDataEvent);
+    rpc subscribeForForexQuotes(stream SubscribeForForexQuotesRequest) returns (stream ForexQuoteEvent);
+
+    rpc subscribeForReport(stream SubscribeForReportRequest) returns (stream ReportEvent);
+    //END SNIPPET: Subscription API
+}
+
+message PortfolioNames {
+    repeated string portfolioName = 1;
+}
+
+//START SNIPPET: TargetIds
+message TargetIds {
+    repeated int64 targetId = 1;
+}
+//END SNIPPET: TargetIds
+
+message Portfolios {
+    repeated Fields portfolio = 1;
+}
+
+message Targets {
+    repeated Fields target = 1;
+}
+
+message Records {
+    repeated Fields record = 1;
+}
+
+message FIXMessagesRequest {
+    repeated FIXFields message = 1;
+}
+
+message PingInfo {
+    int32 pingId = 1;
+}
+
