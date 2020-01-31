@@ -6,20 +6,17 @@ from IterableQueue import IterableQueue
 from EventThread import EventThread
 from event_processors import *
 
-from remote.TMSRemote_pb2 import *
 from remote.TMSRemote_pb2_grpc import *
-from remote.TMSRemoteRequests_pb2 import *
 from remote.TMSRemoteCommon_pb2 import *
+from remote.TMSRemoteRequests_pb2 import *
+from remote.TMSTradingRequests_pb2 import *
 
-"""
-This sample demonstrates usage of the most remote methods from TMSRemote.proto
-Both action calls and subscription to the data is shown.
- """
+SERVER = 'localhost'
 PORTFOLIO = 'test ' + str(datetime.datetime.now())
 
-# channel = grpc.insecure_channel('localhost:8082')
-ssl_credentials = grpc.ssl_channel_credentials(open('cert.pem').read())
-channel = grpc.secure_channel('localhost:8082', ssl_credentials)
+# channel = grpc.insecure_channel(SERVER + ':8082')
+ssl_credentials = grpc.ssl_channel_credentials(open('cert.pem', 'rb').read())
+channel = grpc.secure_channel(SERVER + ':8082', ssl_credentials)
 client = TMSRemoteStub(channel)
 
 
@@ -53,8 +50,7 @@ Subscribe market_target_event_processor for the market target events
 """
 #START SNIPPET: Subscribe for market targets
 market_target_subscription_queue = IterableQueue(SubscribeForTargetsRequest(
-    portfolio=PORTFOLIO,
-    filter='TgtCreateTime >= ' + str(long(time.time() * 1000L)),
+    filter='TgtCreateTime >= ' + str(int(time.time() * 1000)),
     field=['TgtID', 'Instrument', 'TgtQty', 'FillQty']
 ))
 events = client.subscribeForMarketTargets(iter(market_target_subscription_queue))
@@ -226,7 +222,7 @@ client.terminateMarketTargets(TerminateMarketTargetsRequest(
 market_targets = client.getMarketTargets(TargetIds(
     targetId=[target_id]
 ))
-print "Received target record with remote call:", market_targets.target[0].numericFields['TgtID']
+print("Received target record with remote call:", market_targets.target[0].numericFields['TgtID'])
 #END SNIPPET: Get Market Target
 
 

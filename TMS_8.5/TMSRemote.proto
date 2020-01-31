@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-package com.inforeach.eltrader.tms.domain.portfolio.client.grpc.generated;
-
+option java_package = "com.inforeach.eltrader.tms.api.grpc";
 option java_multiple_files = false;
 option java_outer_classname = "TMSRemoteProto";
 
+import "TMSRemoteCommon.proto";
 import "TMSRemoteEvents.proto";
 import "TMSRemoteRequests.proto";
-import "TMSRemoteCommon.proto";
+import "TMSTradingRequests.proto";
 
 //  Represents the communication API with the remote TMS (trade management system).
 //
@@ -37,7 +37,9 @@ import "TMSRemoteCommon.proto";
 //
 //  If connection is broken at gRPC layer the client app is notified through the exceptions or gRPC channel status events.
 //  It's up to the application how gRPC disconnection is handled. The app may stop, may try to establish connection through different gRPC channel or
-//  try connecting through the same channel untill successfull. Then new subscription can be made.
+//  try connecting through the same channel until successful.
+//  The user login must be made after each time the new connection is established. See "login" rpc.
+//  Then new subscription can be made.
 //
 //  For the TMS layer connectivity there are feed status events.
 //  If connection is broken then a feed status "Disconnected" will arrive.
@@ -52,12 +54,19 @@ import "TMSRemoteCommon.proto";
 //  a record) and on "Removed" notifications do clean up and removes
 //  corresponding item from the collection. In order to maintain up-to-date field values in
 //  stored data records client app on "Updated" notifications updates stored records with provided record update values.
+//  Since gRPC doesn't allow sending null values, special value of "<NULL>" is sent in "Updated" notification for cleared values.
 
 //END SNIPPET: Subscription Description
 
 service TMSRemote {
     // Sets current user for whole gRPC session
     rpc login (LoginRequest) returns (Void);
+
+    //START SNIPPET: Ping API
+    // Indended for the periodic calls from the client to make sure the connectivity with the server is maintained.
+    // The service will return the parameter value.
+    rpc ping(PingInfo) returns (PingInfo);
+    //END SNIPPET: Ping API
 
     // Creates a new portfolio. See request comments for the parameters details.
     rpc createMarketPortfolio (CreateMarketPortfolioRequest) returns (Void);
@@ -128,6 +137,9 @@ service TMSRemote {
     rpc statusOrders (FIXMessagesRequest) returns (Void);
     //END SNIPPET: Order Status RPC
 
+    // Crosses two market targets
+    rpc crossMarketTargets(CrossMarketTargetsRequest) returns (Void);
+
     //START SNIPPET: Stop All Trading
     // Stops all trading (pauses all autotraders, cancels all open orders)
     rpc stopAllTrading(Void) returns (Void);
@@ -168,13 +180,6 @@ service TMSRemote {
     // Unreleases aggregated staged targets from market
     rpc unreleaseAggregatedStagedTargets (TargetIds) returns (Void);
 
-
-    //START SNIPPET: Ping API
-    // Indended for the periodic calls from the client to make sure the connectivity with the server is maintained.
-    // The service will return the parameter value.
-    rpc ping(PingInfo) returns (PingInfo);
-    //END SNIPPET: Ping API
-
     //START SNIPPET: Alerts API
     // Posts alert message to user's view. See request comments for the parameters details.
     rpc postAlertMessage(PostAlertMessageRequest) returns (Void);
@@ -202,7 +207,9 @@ service TMSRemote {
     //END SNIPPET: Security Master API
 
     rpc getMarketDataRecords (SubscribeForMarketDataRequest) returns (Records);
+
     rpc getCustomDataRecords (SubscribeForCustomDataRequest) returns (Records);
+    rpc sendCommandToCustomDataProviders(SendCommandToCustomDataProvidersRequst) returns (Void);
 
     // See service comments on top related to the subscriptions.
 
@@ -217,7 +224,8 @@ service TMSRemote {
     rpc subscribeForCategoryPositions (stream SubscribeForCategoryPositionsRequest) returns (stream CategoryPositionEvent);
     rpc subscribeForCashPositions (stream SubscribeForCashPositionsRequest) returns (stream CashPositionEvent);
 
-    rpc subscribeForFIXMessages(stream SubscribeForFIXMessagesRequest) returns (stream FIXMessageEvent);
+    rpc subscribeForFIXMessages(stream SubscribeForFIXMessagesRequest) returns (stream FIXEvent);
+    rpc subscribeForFIXMessagesFrom(stream SubscribeForFIXMessagesFromRequest) returns (stream FIXEvent);
 
     rpc subscribeForMarketData(stream SubscribeForMarketDataRequest) returns (stream MarketDataEvent);
     rpc subscribeForCustomData(stream SubscribeForCustomDataRequest) returns (stream CustomDataEvent);
@@ -226,34 +234,3 @@ service TMSRemote {
     rpc subscribeForReport(stream SubscribeForReportRequest) returns (stream ReportEvent);
     //END SNIPPET: Subscription API
 }
-
-message PortfolioNames {
-    repeated string portfolioName = 1;
-}
-
-//START SNIPPET: TargetIds
-message TargetIds {
-    repeated int64 targetId = 1;
-}
-//END SNIPPET: TargetIds
-
-message Portfolios {
-    repeated Fields portfolio = 1;
-}
-
-message Targets {
-    repeated Fields target = 1;
-}
-
-message Records {
-    repeated Fields record = 1;
-}
-
-message FIXMessagesRequest {
-    repeated FIXFields message = 1;
-}
-
-message PingInfo {
-    int32 pingId = 1;
-}
-

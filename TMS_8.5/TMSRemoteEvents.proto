@@ -1,5 +1,7 @@
 syntax = "proto3";
-package com.inforeach.eltrader.tms.domain.portfolio.client.grpc.generated;
+
+option java_package = "com.inforeach.eltrader.tms.api.grpc";
+
 import "TMSRemoteCommon.proto";
 
 // Contains events sent by the TMS
@@ -202,9 +204,20 @@ message CategoryPositionEvent {
     }
 }
 
-message FIXMessageEvent {
+message FIXEvent {
     string connectionName = 1;
-    FIXFields fields = 2;
+
+    oneof event {
+        SubscriptionStarted started = 2;
+        Message message = 3;
+    }
+
+    message SubscriptionStarted {
+    }
+
+    message Message {
+        FIXFields fields = 1;
+    }
 }
 
 message MarketDataEvent {

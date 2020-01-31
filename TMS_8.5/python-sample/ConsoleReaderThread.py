@@ -2,13 +2,14 @@ import threading
 import traceback
 import sys
 
+
 class ConsoleReadingThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.daemon = True
 
     def threadDump(self):
-        print >> sys.stderr, "\n*** STACKTRACE - START ***\n"
+        print("\n*** STACKTRACE - START ***\n", file=sys.stderr)
         code = []
         for threadId, stack in sys._current_frames().items():
             code.append("\n# ThreadID: %s" % threadId)
@@ -18,17 +19,17 @@ class ConsoleReadingThread(threading.Thread):
                     code.append("  %s" % (line.strip()))
 
         for line in code:
-            print >> sys.stderr, line
-        print >> sys.stderr, "\n*** STACKTRACE - END ***\n"
+            print(line, file=sys.stderr)
+        print("\n*** STACKTRACE - END ***\n", file=sys.stderr)
 
     def run(self):
         while True:
             try:
                 input = raw_input('')
-                if (input == 'ds'):
+                if input == 'ds':
                     self.threadDump()
 
             except Exception as e:
-                print 'Exception when reading from the console = ', e
+                print('Exception when reading from the console = ', e)
                 break
 

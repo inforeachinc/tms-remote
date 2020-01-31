@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997-2017 InfoReach, Inc. All Rights Reserved.
+ * Copyright (c) 1997-2018 InfoReach, Inc. All Rights Reserved.
  *
  * This software is the confidential and proprietary information of
  * InfoReach ("Confidential Information").  You shall not
@@ -10,10 +10,12 @@
  * CopyrightVersion 2.0
  */
 
+package snippet;
+
 import org.apache.log4j.Logger;
 
-import com.inforeach.eltrader.tms.domain.portfolio.client.grpc.generated.TMSRemoteCommon;
-import com.inforeach.eltrader.tms.domain.portfolio.client.grpc.generated.TMSRemoteEvents;
+import com.inforeach.eltrader.tms.api.grpc.TMSRemoteCommon;
+import com.inforeach.eltrader.tms.api.grpc.TMSRemoteEvents;
 
 import io.grpc.stub.StreamObserver;
 
@@ -212,5 +214,31 @@ class TMSClientAppStreamObservers
         {
         }
     }
-    //START SNIPPET: Market data event observer
+    //END SNIPPET: Market data event observer
+
+    //START SNIPPET: FIXMessage event observer
+    static class FIXMessagesStreamObserver implements StreamObserver<TMSRemoteEvents.FIXEvent>
+    {
+        @Override
+        public void onNext(TMSRemoteEvents.FIXEvent fixEvent)
+        {
+            if (fixEvent.getEventCase() == TMSRemoteEvents.FIXEvent.EventCase.MESSAGE)
+            {
+                final TMSRemoteCommon.FIXFields fields = fixEvent.getMessage().getFields();
+                LOGGER.debug(this.getClass().getSimpleName() + " received FIX message = " + fields);
+            }
+        }
+
+        @Override
+        public void onError(Throwable t)
+        {
+            t.printStackTrace();
+        }
+
+        @Override
+        public void onCompleted()
+        {
+        }
+    }
+    //START SNIPPET: FIXMessage event observer
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997-2017 InfoReach, Inc. All Rights Reserved.
+ * Copyright (c) 1997-2018 InfoReach, Inc. All Rights Reserved.
  *
  * This software is the confidential and proprietary information of
  * InfoReach ("Confidential Information").  You shall not
@@ -10,17 +10,19 @@
  * CopyrightVersion 2.0
  */
 
+package snippet;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import com.inforeach.eltrader.tms.domain.portfolio.client.grpc.generated.*;
-import static com.inforeach.eltrader.tms.domain.portfolio.client.grpc.generated.TMSRemoteCommon.FIXTag.*;
-import static com.inforeach.eltrader.tms.domain.portfolio.client.grpc.generated.TMSRemoteCommon.OrdType.*;
-import static com.inforeach.eltrader.tms.domain.portfolio.client.grpc.generated.TMSRemoteCommon.Side.*;
-import static com.inforeach.eltrader.tms.domain.portfolio.client.grpc.generated.TMSRemoteCommon.HandlInst.*;
+import com.inforeach.eltrader.tms.api.grpc.*;
+import static com.inforeach.eltrader.tms.api.grpc.TMSRemoteCommon.FIXTag.*;
+import static com.inforeach.eltrader.tms.api.grpc.TMSRemoteCommon.OrdType.*;
+import static com.inforeach.eltrader.tms.api.grpc.TMSRemoteCommon.Side.*;
+import static com.inforeach.eltrader.tms.api.grpc.TMSRemoteCommon.HandlInst.*;
 
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
@@ -71,9 +73,9 @@ public class TMSClientApp
             //END SNIPPET: Security Master API
 
             //START SNIPPET: Create Market Portfolio
-            TMSRemoteRequests.CreateMarketPortfolioRequest request = TMSRemoteRequests.CreateMarketPortfolioRequest.newBuilder()
+            TMSTradingRequests.CreateMarketPortfolioRequest request = TMSTradingRequests.CreateMarketPortfolioRequest.newBuilder()
                 .setName(PORTFOLIO)
-                .setType(TMSRemoteRequests.CreateMarketPortfolioRequest.PortfolioType.Pure)
+                .setType(TMSTradingRequests.CreateMarketPortfolioRequest.PortfolioType.Pure)
                 .build();
 
             try
@@ -91,15 +93,14 @@ public class TMSClientApp
 
             //-----------------   Subscribe for events ---------------------------
             //START SNIPPET: Subscribe for market targets
-            StreamObserver<TMSRemoteRequests.SubscribeForTargetsRequest> marketTargetSubscriptionRequest = client.subscribeForMarketTargets(new TMSClientAppStreamObservers.MarketTargetStreamObserver());
-            marketTargetSubscriptionRequest.onNext(TMSRemoteRequests.SubscribeForTargetsRequest.newBuilder()
-                .setPortfolio(PORTFOLIO)
+            StreamObserver<TMSTradingRequests.SubscribeForTargetsRequest> marketTargetSubscriptionRequest = client.subscribeForMarketTargets(new TMSClientAppStreamObservers.MarketTargetStreamObserver());
+            marketTargetSubscriptionRequest.onNext(TMSTradingRequests.SubscribeForTargetsRequest.newBuilder()
                 .setFilter("TgtCreateTime >= " + System.currentTimeMillis())
                 .addAllField(Arrays.asList("TgtID", "Instrument", "TgtQty", "FillQty"))
                 .build());
             //END SNIPPET: Subscribe for market targets
 
-            final StreamObserver<TMSRemoteRequests.SubscribeForOrdersRequest> ordersSubscriptionRequest = client.subscribeForOrders(new TMSClientAppStreamObservers.AbstractStreamObserver<TMSRemoteEvents.OrderEvent>()
+            final StreamObserver<TMSTradingRequests.SubscribeForOrdersRequest> ordersSubscriptionRequest = client.subscribeForOrders(new TMSClientAppStreamObservers.AbstractStreamObserver<TMSRemoteEvents.OrderEvent>()
             {
                 @Override
                 protected void processEvent(TMSRemoteEvents.OrderEvent orderEvent)
@@ -118,7 +119,7 @@ public class TMSClientApp
                                 .putStringFields(FIXTag_SingleOrderTransactionId_VALUE, orderId)
                                 .putNumericFields(FIXTag_LastQty_VALUE, 300)
                                 .putNumericFields(FIXTag_LastPx_VALUE, 49.9);
-                            blockingClient.fillOrders(TMSRemoteProto.FIXMessagesRequest.newBuilder()
+                            blockingClient.fillOrders(TMSRemoteRequests.FIXMessagesRequest.newBuilder()
                                 .addMessage(messageBuilder)
                                 .build());
                             //END SNIPPET: Fill Orders
@@ -126,7 +127,7 @@ public class TMSClientApp
                         else if (orderQty == 300)
                         {
                             //START SNIPPET: Cancel Orders
-                            blockingClient.cancelOrders(TMSRemoteRequests.CancelOrdersRequest.newBuilder()
+                            blockingClient.cancelOrders(TMSTradingRequests.CancelOrdersRequest.newBuilder()
                                 .addOrderId(orderId)
                                 .build()
                             );
@@ -137,7 +138,7 @@ public class TMSClientApp
                             //START SNIPPET: Modify Orders
                             final double newOrderQty = orderQty.doubleValue() - 100;
 
-                            blockingClient.modifyOrders(TMSRemoteRequests.ModifyOrdersRequest.newBuilder()
+                            blockingClient.modifyOrders(TMSTradingRequests.ModifyOrdersRequest.newBuilder()
                                 .addOrderId(orderId)
                                 .addMessage(TMSRemoteCommon.FIXFields.newBuilder()
                                     .putNumericFields(FIXTag_OrderQty_VALUE, newOrderQty)
@@ -150,7 +151,7 @@ public class TMSClientApp
                     }
                 }
             });
-            ordersSubscriptionRequest.onNext(TMSRemoteRequests.SubscribeForOrdersRequest.newBuilder()
+            ordersSubscriptionRequest.onNext(TMSTradingRequests.SubscribeForOrdersRequest.newBuilder()
                 .build());
 
             StreamObserver<TMSRemoteRequests.SubscribeForInstrumentPositionsRequest> instrumentPositionSubscriptionRequest = client.subscribeForInstrumentPositions(new TMSClientAppStreamObservers.InstrumentPositionEventStreamObserver());
@@ -180,7 +181,7 @@ public class TMSClientApp
             //-------------------------------------------------------------------
 
            //START SNIPPET: Modify Market Portfolio
-           TMSRemoteRequests.ModifyPortfolioRequest modifyMarketPortfolioRequest = TMSRemoteRequests.ModifyPortfolioRequest.newBuilder()
+            TMSTradingRequests.ModifyPortfolioRequest modifyMarketPortfolioRequest = TMSTradingRequests.ModifyPortfolioRequest.newBuilder()
                 .setName(PORTFOLIO)
                 .setFields(TMSRemoteCommon.Fields.newBuilder()
                     .putStringFields("TrnDestinationAlias", "Tally")
@@ -190,7 +191,7 @@ public class TMSClientApp
             //END SNIPPET: Modify Market Portfolio
 
             //START SNIPPET: Add Market Targets
-            final TMSRemoteProto.TargetIds targetsActionResponse = blockingClient.addMarketTargets(TMSRemoteRequests.AddTargetsRequest.newBuilder()
+            final TMSTradingRequests.TargetIds targetsActionResponse = blockingClient.addMarketTargets(TMSTradingRequests.AddTargetsRequest.newBuilder()
                 .setPortfolio(PORTFOLIO)
                 .addFields(TMSRemoteCommon.Fields.newBuilder()
                     .putStringFields("Instrument", "IBM")
@@ -204,7 +205,7 @@ public class TMSClientApp
             //END SNIPPET: Add Market Targets
 
             //START SNIPPET: Modify Market Targets
-            blockingClient.modifyMarketTargets(TMSRemoteRequests.ModifyTargetsRequest.newBuilder()
+            blockingClient.modifyMarketTargets(TMSTradingRequests.ModifyTargetsRequest.newBuilder()
                 .addTargetId(targetId)
                 .addFields(TMSRemoteCommon.Fields.newBuilder()
                     .putStringFields("TrnDestination", "Simulator1")
@@ -214,13 +215,13 @@ public class TMSClientApp
             //END SNIPPET: Modify Market Targets
 
 
-            blockingClient.sendOrders(TMSRemoteRequests.SendOrdersRequest.newBuilder()
+            blockingClient.sendOrders(TMSTradingRequests.SendOrdersRequest.newBuilder()
                 .addTargetId(targetId)
                 .build());
 
 
             //START SNIPPET: Pause Market Targets
-            blockingClient.pauseMarketTargets(TMSRemoteRequests.PauseMarketTargetsRequest.newBuilder()
+            blockingClient.pauseMarketTargets(TMSTradingRequests.PauseMarketTargetsRequest.newBuilder()
                 .addTargetId(targetId)
                 .setCancelOpenOrders(false)
                 .build());
@@ -228,13 +229,13 @@ public class TMSClientApp
 
             Thread.sleep(2_000);
 
-            blockingClient.resumeMarketTargets(TMSRemoteRequests.ResumeMarketTargetsRequest.newBuilder()
+            blockingClient.resumeMarketTargets(TMSTradingRequests.ResumeMarketTargetsRequest.newBuilder()
                 .addTargetId(targetId)
                 .build());
 
             //START SNIPPET: Send Orders
             //Send non-target orders
-            blockingClient.sendOrders(TMSRemoteRequests.SendOrdersRequest.newBuilder()
+            blockingClient.sendOrders(TMSTradingRequests.SendOrdersRequest.newBuilder()
                 .addMessage(TMSRemoteCommon.FIXFields.newBuilder()
                     .putStringFields(FIXTag_Instrument_VALUE, "MSFT")
                     .putStringFields(FIXTag_Symbol_VALUE, "MSFT")
@@ -249,12 +250,12 @@ public class TMSClientApp
                 .build());
 
             //Send target orders
-            blockingClient.sendOrders(TMSRemoteRequests.SendOrdersRequest.newBuilder()
+            blockingClient.sendOrders(TMSTradingRequests.SendOrdersRequest.newBuilder()
                 .addTargetId(targetId)
                 .build());
 
             //Send target order with additional field(s) in the message
-            blockingClient.sendOrders(TMSRemoteRequests.SendOrdersRequest.newBuilder()
+            blockingClient.sendOrders(TMSTradingRequests.SendOrdersRequest.newBuilder()
                 .addTargetId(targetId)
                 .addMessage(TMSRemoteCommon.FIXFields.newBuilder()
                     .putStringFields(FIXTag_Text_VALUE, "NOFILL")
@@ -262,13 +263,13 @@ public class TMSClientApp
                 .build());
             //END SNIPPET: Send Orders
 
-            blockingClient.terminateMarketTargets(TMSRemoteRequests.TerminateMarketTargetsRequest.newBuilder()
+            blockingClient.terminateMarketTargets(TMSTradingRequests.TerminateMarketTargetsRequest.newBuilder()
                 .addTargetId(targetId)
                 .setCancelOpenOrders(true)
                 .build());
 
             //START SNIPPET: Get Market Target
-            final TMSRemoteProto.Targets marketTargets = blockingClient.getMarketTargets(TMSRemoteProto.TargetIds.newBuilder()
+            final TMSTradingRequests.Targets marketTargets = blockingClient.getMarketTargets(TMSTradingRequests.TargetIds.newBuilder()
                 .addTargetId(targetId)
                 .build());
 
@@ -278,7 +279,7 @@ public class TMSClientApp
             try
             {
                 //START SNIPPET: Remove Market Targets
-                blockingClient.removeMarketTargets(TMSRemoteProto.TargetIds.newBuilder()
+                blockingClient.removeMarketTargets(TMSTradingRequests.TargetIds.newBuilder()
                     .addTargetId(targetId)
                     .build());
                 //END SNIPPET: Remove Market Targets
@@ -291,7 +292,7 @@ public class TMSClientApp
             try
             {
                 //START SNIPPET: Remove Market Portfolio
-                TMSRemoteRequests.RemovePortfolioRequest removeMarketPortfolioRequest = TMSRemoteRequests.RemovePortfolioRequest.newBuilder()
+                TMSTradingRequests.RemovePortfolioRequest removeMarketPortfolioRequest = TMSTradingRequests.RemovePortfolioRequest.newBuilder()
                      .setName(PORTFOLIO)
                      .build();
                 blockingClient.removeMarketPortfolio(removeMarketPortfolioRequest);

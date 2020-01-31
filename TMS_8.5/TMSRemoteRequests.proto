@@ -1,5 +1,7 @@
 syntax = "proto3";
-package com.inforeach.eltrader.tms.domain.portfolio.client.grpc.generated;
+
+option java_package = "com.inforeach.eltrader.tms.api.grpc";
+
 import "TMSRemoteCommon.proto";
 
 // Contains requests sent to the TMS
@@ -9,140 +11,12 @@ message LoginRequest {
     string password = 2;
 }
 
-//START SNIPPET: CreateMarketPortfolioRequest
-message CreateMarketPortfolioRequest {
-    enum PortfolioType {
-        UNDEFINED = 0; // default
-        Index = 1;
-        Pure = 2;
-        Linked = 3;
-        Correlated = 4;
-        Dynamic = 5;
-        Staged = 6;
-    }
-
-    string name = 1; //Unique name of the new portfolio
-    PortfolioType type = 2; //A type of the portfolio, required field.
-    Fields fields = 3; //Fields to be set in the new portfolio
-}
-//END SNIPPET: CreateMarketPortfolioRequest
-
-//START SNIPPET: ModifyPortfolioRequest
-message ModifyPortfolioRequest {
-    string name = 1; //A name of the existing portfolio.
-    Fields fields = 2; //Fields to modify in the portfolio.
-}
-//END SNIPPET: ModifyPortfolioRequest
-
-//START SNIPPET: RemovePortfolioRequest
-message RemovePortfolioRequest {
-    string name = 1; //A name of the existing portfolio.
-}
-//END SNIPPET: RemovePortfolioRequest
-
-//START SNIPPET: AddTargetsRequest
-message AddTargetsRequest {
-    string portfolio = 1; //A name of the portfolio to add targets to.
-    repeated Fields fields = 2; //Fields of the added target(s)
-}
-//END SNIPPET: AddTargetsRequest
-
-//START SNIPPET: ModifyTargetsRequest
-message ModifyTargetsRequest {
-    repeated int64 targetId = 1; //Id(s) of the target(s) to modify (target ids returned when new targets are added).
-    repeated Fields fields = 2; //If only one fields container - all targets will be modified with it. Otherwise there must be a field container per target.
-}
-//END SNIPPET: ModifyTargetsRequest
-
-//START SNIPPET: TargetStatusRequests
-message TerminateMarketTargetsRequest {
-    repeated int64 targetId = 1; //Id(s) of the target(s) to terminate (target ids returned when new targets are added).
-    bool cancelOpenOrders = 2; //indicates whether all open outstanding (sent to market) orders for specified targets should be canceled
+message PingInfo {
+    int32 pingId = 1;
 }
 
-message PauseMarketTargetsRequest {
-    repeated int64 targetId = 1;//Id(s) of the target(s) to pause (target ids returned when new targets are added).
-    bool cancelOpenOrders = 2; //indicates whether all open outstanding (sent to market) orders for specified targets should be canceled
-}
-
-message ResumeMarketTargetsRequest {
-    repeated int64 targetId = 1;//Id(s) of the target(s) to resume (target ids returned when new targets are added).
-}
-//END SNIPPET: TargetStatusRequests
-
-message ReleaseAggregatedStatedTargetsRequest {
-    string marketPortfolio = 1; // Name of market portfolio to release targets
-    repeated int64 targetId = 12;//Id(s) of the aggregated target(s) to release
-}
-
-//START SNIPPET: SendOrderRequest
-// Can have
-// - only message(s) for non-target order sending
-// - only target ids for sending orders of those targets
-// - or both, in this case their count must match, and each message is sent for the corresponding target
-message SendOrdersRequest {
-    repeated int64 targetId  = 1;
-    repeated FIXFields message = 2;
-}
-//END SNIPPET: SendOrderRequest
-
-
-//START SNIPPET: ModifyOrderRequest
-//orderIds and messages must match each others count
-message ModifyOrdersRequest {
-    repeated string orderId  = 1;
-    repeated FIXFields message = 2;
-}
-//END SNIPPET: ModifyOrderRequest
-
-
-//START SNIPPET: CancelOrderRequest
-//Messages are optional. If specified their count must match the orderIds count.
-message CancelOrdersRequest {
-    repeated string orderId  = 1;
-    repeated FIXFields message = 2;
-}
-//END SNIPPET: CancelOrderRequest
-
-//START SNIPPET: OrderStatusRequests
-message ConfirmOrdersRequest {
-    repeated FIXFields message = 1;
-    bool outPreviousRequests = 2;
-}
-
-message OutOnOrdersRequest {
-    repeated FIXFields message = 1;
-    bool updateBrokerOrders = 2;
-}
-//END SNIPPET: OrderStatusRequests
-
-//START SNIPPET: CreateStagedPortfolioRequest
-message CreateStagedPortfolioRequest {
-    string name = 1; //Unique name of the new portfolio
-    string clientName = 2; //Name of the client (optional)
-    string marketPortfolioForAutoRelease = 3; // Name of market portfolio for auto-release (optional)
-    Fields fields = 4; //Fields to be set in the new portfolio
-}
-//END SNIPPET: CreateStagedPortfolioRequest
-
-message SubscribeForPortfoliosRequest {
-    bool skipRecordUpdates = 1; //Set it to "true" in case listener is not interested in record updates.
-    string filter = 2; //Filtering expression. Events sent for portfolios matching the filter.
-    repeated string field = 3;//Fields to be sent. All fields will be sent if not set.
-}
-
-//START SNIPPET: SubscribeForMarketTargetsRequest
-message SubscribeForTargetsRequest {
-    string portfolio = 1; //Portfolio of the targets to subscribe for.
-    bool skipRecordUpdates = 2; //Set it to "true" in case listener is not interested in record updates.
-    string filter = 3;  //Filtering expression. Events sent for targets matching the filter.
-    repeated string field = 4; //Fields to be sent. All fields will be sent if not set.
-}
-//END SNIPPET: SubscribeForMarketTargetsRequest
-
-message SubscribeForOrdersRequest {
-    string filter = 1;  //Filtering expression. Events sent for orders matching the filter.
-    repeated string field = 2; //Fields to be sent. All fields will be sent if not set.
+message Records {
+    repeated Fields record = 1;
 }
 
 message SubscribeForInstrumentPositionsRequest {
@@ -168,7 +42,60 @@ message SubscribeForFIXMessagesRequest {
     bool skipAppMessages = 3; // Set it to "true" in case listener is not interested in application messages
     bool skipAdminMessages = 4; // Set it to "true" in case listener is not interested in application messages
     repeated int32 field = 5; // Fields to be sent. All fields will be sent if not set.
+    bool retrieveState = 6; // Set it to "true" in case listener is interested in previous messages.
 }
+
+// Allows subscribing from some particular message id(s).
+// When recovering application is interested in receiving only not yet processed messages
+// it needs to maintain MAX id (or last processed id) for each range of interest
+// and use it when subscribing to FIX messages after recovery.
+//
+// There are 4 ranges: "application from", "application to", "admin from", "admin to"
+//
+// For example, if the application listens to both "from" and "to" application messages,
+// it needs to keep maximum processed ids (last processed ids) for each of 2 ranges:
+//  [INITIAL_APP_MESSAGE_TO_COUNTER_PARTY_ID .. MAX_APP_MESSAGE_TO_COUNTER_PARTY_ID]
+//  [INITIAL_APP_MESSAGE_FROM_COUNTER_PARTY_ID ..  MAX_APP_MESSAGE_FROM_COUNTER_PARTY_ID]
+//
+// And when subscribing the restored last processed id to be used for the appropriate range:
+// For example:
+//      appLastProcessedFromCounterPartyId = 536871111 (belongs to "app from" range);
+//      appLastProcessedToCounterPartyId = 500 (belongs to "app to" range);
+//
+//
+// Note - if some id is not specified the messages for such ids are not streamed. E.g. if appLastProcessedFromCounterPartyId is not set
+//        the application messages "from" will not be streaming.
+//
+message SubscribeForFIXMessagesFromRequest {
+    enum Ids {
+        SKIP = 0; //Messages will not be sent, default behavior
+
+        RECEIVE_FROM_NOW = -2; //Only new messages will be streamed, i.e. from the subscription point
+
+        INITIAL_APP_MESSAGE_TO_COUNTER_PARTY_ID     =         -1;
+        MAX_APP_MESSAGE_TO_COUNTER_PARTY_ID         =  536870910;
+
+        INITIAL_APP_MESSAGE_FROM_COUNTER_PARTY_ID   =  536870911;
+        MAX_APP_MESSAGE_FROM_COUNTER_PARTY_ID       = 1073741822;
+
+        INITIAL_ADMIN_MESSAGE_TO_COUNTER_PARTY_ID   = 1073741823;
+        MAX_ADMIN_MESSAGE_TO_COUNTER_PARTY_ID       = 1342177278;
+
+        INITIAL_ADMIN_MESSAGE_FROM_COUNTER_PARTY_ID = 1342177279;
+        MAX_ADMIN_MESSAGE_FROM_COUNTER_PARTY_ID     = 1610612734;
+    }
+
+
+    string connectionName = 1; // Name of the connection for messages to subscribe
+    string filter = 2; // Filtering expression
+    repeated int32 field = 3; // Fields to be sent. All fields will be sent if not set.
+
+    int32 appLastProcessedFromCounterPartyId = 4;
+    int32 appLastProcessedToCounterPartyId = 5;
+    int32 adminLastProcessedFromCounterPartyId = 6;
+    int32 adminLastProcessedToCounterPartyId = 7;
+}
+
 
 message SubscribeForReportRequest {
     string domainManagerName = 1; // Name of the domain manager which manages the report
@@ -187,6 +114,13 @@ message SubscribeForCustomDataRequest {
     string dataSourceName = 1; // Name of data source
     repeated string recordId = 2; // Record(s) to subscribe
     repeated string field = 3; // Fields to be sent. All fields will be sent if not set.
+}
+
+message SendCommandToCustomDataProvidersRequst {
+    string dataSourceName = 1; // Name of data source
+    repeated string providerName = 2; // Provider names (optional)
+    string command = 3;
+    Fields commandProperties = 4; // Command properties
 }
 
 message SubscribeForForexQuotesRequest {
@@ -316,3 +250,7 @@ message VolumeCurveResponse {
     }
 }
 //END SNIPPET: SecurityMasterAPI
+
+message FIXMessagesRequest {
+    repeated FIXFields message = 1;
+}

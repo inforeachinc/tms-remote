@@ -1,5 +1,6 @@
 syntax = "proto3";
-package com.inforeach.eltrader.tms.domain.portfolio.client.grpc.generated;
+
+option java_package = "com.inforeach.eltrader.tms.api.grpc";
 
 // Common data types
 

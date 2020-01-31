@@ -1,9 +1,9 @@
+"""
+Contains sample stub processors of the events from the remote TMS
+"""
+
 from remote.TMSRemoteEvents_pb2 import *
 
-
-'''
-Contains sample stub processors of the events from the remote TMS
-'''
 
 #START SNIPPET: Market target event processor
 def market_target_event_processor(event):

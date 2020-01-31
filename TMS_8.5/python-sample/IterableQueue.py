@@ -1,15 +1,18 @@
 # from https://stackoverflow.com/a/11288503/368004
-import Queue
+try:
+    import Queue as queue
+except ImportError:
+    import queue as queue
 
 
-class IterableQueue(Queue.Queue):
+class IterableQueue(queue.Queue):
     _sentinel = object()
 
-    def __init__(self, toAdd=None):
-        Queue.Queue.__init__(self)
+    def __init__(self, to_add=None):
+        queue.Queue.__init__(self)
 
-        if toAdd is not None:
-            self.put(toAdd)
+        if to_add is not None:
+            self.put(to_add)
 
     def __iter__(self):
         return iter(self.get, self._sentinel)
