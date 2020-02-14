@@ -130,24 +130,24 @@ message SubscribeForForexQuotesRequest {
     repeated string field = 4; // Fields to be sent. All fields will be sent if not set.
 
     oneof type {
-        Spot spot = 5;
-        Forward forward = 6;
-        Ndf ndf = 7;
-        Swap swap = 8;
+        SpotType spot = 5;
+        ForwardType forward = 6;
+        NdfType ndf = 7;
+        SwapType swap = 8;
     }
 
-    message Spot {
+    message SpotType {
         string currency = 1;
         double quantity = 2;
     }
 
-    message Forward {
+    message ForwardType {
         string currency = 1;
         double quantity = 2;
         int64 forwardDate = 3;
     }
 
-    message Ndf {
+    message NdfType {
         string currency = 1;
         double quantity = 2;
         int64 settlementDate = 3;
@@ -155,7 +155,7 @@ message SubscribeForForexQuotesRequest {
         int64 fixingDate = 5;
     }
 
-    message Swap {
+    message SwapType {
         string nearCurrency = 1;
         double nearQuantity = 2;
         int64  nearDate= 3;

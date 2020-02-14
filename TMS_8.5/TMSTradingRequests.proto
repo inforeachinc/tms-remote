@@ -15,7 +15,6 @@ message CreateMarketPortfolioRequest {
         Linked = 3;
         Correlated = 4;
         Dynamic = 5;
-        Staged = 6;
     }
 
     string name = 1; //Unique name of the new portfolio
@@ -70,7 +69,7 @@ message ResumeMarketTargetsRequest {
 
 message ReleaseAggregatedStatedTargetsRequest {
     string marketPortfolio = 1; // Name of market portfolio to release targets
-    repeated int64 targetId = 12;//Id(s) of the aggregated target(s) to release
+    repeated int64 targetId = 2;//Id(s) of the aggregated target(s) to release
 }
 
 //START SNIPPET: SendOrderRequest

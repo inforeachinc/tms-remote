@@ -166,7 +166,7 @@ service TMSRemote {
     // Removes existing staged targets. See request comments for the parameters details.
     rpc removeStagedTargets (TargetIds) returns (Void);
     // Gets snapshot of staged target IDs from existing portfolio. In case up-to-date target information is needed the application should
-    // instead subscribe to the targets using _subscribeForMarketTargets_ call.
+    // instead subscribe to the targets using _subscribeForStagedTargets_ call.
     rpc getStagedPortfolioTargetIds(PortfolioNames) returns (TargetIds);
     // Gets staged target records snapshot. In case up-to-date target information is needed the application should
     // instead subscribe to the targets using _subscribeForStagedTargets_ call.
