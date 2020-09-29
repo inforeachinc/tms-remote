@@ -7,7 +7,7 @@ TMSRemote.proto - defines TMS Remote gRPC service
 
 java-sample/TMSClientApp.java - java sample
 
-python-sample/main.py - python sample
+python-sample/sample.py - python sample
 
 ### Instructions how to run Python sample
 
@@ -29,5 +29,5 @@ or
 
 5. Get cert.pem SSL certificate file from InfoReach and put it to the current folder
 
-6. Run main.py  
-`python main.py`
+6. Run sample.py  
+`python sample.py`
