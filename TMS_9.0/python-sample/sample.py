@@ -28,6 +28,7 @@ from remote.TMSTradingRequests_pb2 import *
 #     If Text field is updated with STOP value then cancel open orders for this target and stop trading it.
 
 SERVER = 'localhost'
+GRPCPORT = '8083'
 USER = 'demo'
 PASSWORD = ''
 PORTFOLIO = 'grpcSample - ' + time.strftime('%Y%d%m %H:%M:%S')
@@ -48,9 +49,9 @@ logging.getLogger('').addHandler(fh)
 scheduler = sched.scheduler(time.time, time.sleep)
 SchedulerThread(scheduler).start()
 
-# channel = grpc.insecure_channel(SERVER + ':8083')
+# channel = grpc.insecure_channel(SERVER + ':' + GRPCPORT')
 ssl_credentials = grpc.ssl_channel_credentials(open(directory + '/cert.pem', 'rb').read())
-channel = grpc.secure_channel(SERVER + ':8083', ssl_credentials)
+channel = grpc.secure_channel(SERVER + ':' + GRPCPORT, ssl_credentials)
 client = TMSRemoteStub(channel)
 
 client.login(LoginRequest(user=USER, password=PASSWORD))
