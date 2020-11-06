@@ -1,4 +1,5 @@
 import os
+import sys
 import grpc
 import time
 import sched
@@ -49,7 +50,7 @@ logging.getLogger('').addHandler(fh)
 scheduler = sched.scheduler(time.time, time.sleep)
 SchedulerThread(scheduler).start()
 
-# channel = grpc.insecure_channel(SERVER + ':' + GRPCPORT')
+# channel = grpc.insecure_channel(SERVER + ':' + GRPCPORT)
 ssl_credentials = grpc.ssl_channel_credentials(open(directory + '/cert.pem', 'rb').read())
 channel = grpc.secure_channel(SERVER + ':' + GRPCPORT, ssl_credentials)
 client = TMSRemoteStub(channel)
@@ -210,10 +211,20 @@ with open(directory + '/' + FILE_NAME, 'r') as csvfile:
         instruments.add(row['Instrument'])
 
 # create market targets
-target_ids = client.addMarketTargets(AddMarketTargetsRequest(
-    portfolio=PORTFOLIO,
-    fields=targets
-)).targetId
+try:
+    target_ids = client.addMarketTargets(AddMarketTargetsRequest(
+        portfolio=PORTFOLIO,
+        fields=targets
+    )).targetId
+except Exception as ex:
+    logging.exception('Exception when calling addMarketTargets')
+    if hasattr(ex, 'trailing_metadata'):
+        metadata = dict(ex.trailing_metadata())
+        print("    Exception class: ", metadata.get("exceptionclass", None), " errorCode: ", metadata.get("errorcode", None))
+        childExceptionCount = int(metadata.get("childexceptionscount", "0"))
+        for ec in range(min(childExceptionCount, 10)):  # only 10 child exceptions have details sent remotely
+            print("        ChildException ", ec, " ", metadata.get("childexceptionmessage_" + str(ec)))
+    sys.exit()
 
 # subscribe for market targets
 targets = {}
