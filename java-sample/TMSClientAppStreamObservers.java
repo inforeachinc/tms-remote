@@ -10,8 +10,6 @@
  * CopyrightVersion 2.0
  */
 
-package snippet;
-
 import org.apache.log4j.Logger;
 
 import com.inforeach.eltrader.tms.api.grpc.TMSRemoteCommon;

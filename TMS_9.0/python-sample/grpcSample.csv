@@ -1,3 +1,0 @@
-Instrument,Side,TgtQty,TgtOrdType,SetPxTo,ClientName
-IBM,49,1000,50,BidPx:AskPx,Client1
-GOOG,50,1000,50,BidPx:AskPx,Client2

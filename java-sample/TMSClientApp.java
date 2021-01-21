@@ -10,8 +10,6 @@
  * CopyrightVersion 2.0
  */
 
-package snippet;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
