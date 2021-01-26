@@ -8,6 +8,14 @@
     <build>
         <sourceDirectory>.</sourceDirectory>
 
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.6.2</version>
+            </extension>
+        </extensions>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -17,6 +25,27 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>0.6.1</version>
+                <configuration>
+                    <protocArtifact>com.google.protobuf:protoc:3.12.0:exe:${os.detected.classifier}</protocArtifact>
+                    <pluginId>grpc-java</pluginId>
+                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.35.0:exe:${os.detected.classifier}</pluginArtifact>
+                    <protoSourceRoot>..</protoSourceRoot>
+                    <includes><include>*.proto</include></includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>compile-custom</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
@@ -69,14 +98,6 @@
             <groupId>io.perfmark</groupId>
             <artifactId>perfmark-api</artifactId>
             <version>0.23.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.inforeach.tms</groupId>
-            <artifactId>eltraderTms</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${tms.install}/common/lib/eltradertms.jar</systemPath>
         </dependency>
     </dependencies>
 </project>
