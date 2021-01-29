@@ -9,6 +9,8 @@ java-sample/TMSClientApp.java - java sample
 
 python-sample/sample.py - python sample
 
+cs-sample/TMSClientApp.cs - C# sample
+
 ### Instructions how to run Python sample
 
 1. Change current folder to _python-sample_  
@@ -31,3 +33,16 @@ or
 
 6. Run sample.py  
 `python sample.py`
+
+### Instructions how to run C# sample with .NET Core 2.1
+
+1. Change current folder to _cs-sample_  
+`cd cs-sample/`
+
+2. Get cert.pem SSL certificate file from InfoReach and put it to the current folder
+
+3. Run the following command to install dependencies and build a sample application
+`dotnet build`
+
+4. Run the sample application
+`dotnet run`
