@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29102.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMSClientApp", "TMSClientApp.csproj", "{9CAEABDA-15F7-49D8-97EB-ACFABE5FF2A0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9CAEABDA-15F7-49D8-97EB-ACFABE5FF2A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CAEABDA-15F7-49D8-97EB-ACFABE5FF2A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CAEABDA-15F7-49D8-97EB-ACFABE5FF2A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CAEABDA-15F7-49D8-97EB-ACFABE5FF2A0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DB8A6A09-8340-4A07-80AA-7EB19D7A2626}
+	EndGlobalSection
+EndGlobal
