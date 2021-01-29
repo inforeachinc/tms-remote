@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.14.0" />
+    <PackageReference Include="Grpc.Core" Version="2.35.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.35.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="..\TMSRemote.proto" GrpcServices="Client" />
+    <Protobuf Include="..\TMSRemoteCommon.proto" GrpcServices="Client" />
+    <Protobuf Include="..\TMSRemoteEvents.proto" GrpcServices="Client" />
+    <Protobuf Include="..\TMSRemoteRequests.proto" GrpcServices="Client" />
+    <Protobuf Include="..\TMSTradingRequests.proto" GrpcServices="Client" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="cert.pem">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>
