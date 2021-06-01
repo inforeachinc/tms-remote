@@ -125,6 +125,8 @@ service TMSRemote {
     rpc getOrderFieldTypes(Void) returns (FieldToType);
     // Sends orders for all targets from portfolios
     rpc sendPortfolioOrders(PortfolioNames) returns (Void);
+    // Sends target orders. See request comments for the parameters details.
+    rpc sendTargetWave(SendTargetWaveRequest) returns (Void);
     // Sends either portfolio or non-portfolio orders. See request comments for the parameters details.
     rpc sendOrders(SendOrdersRequest) returns (Void);
     // Modifies orders. See request comments for the parameters details.
@@ -188,6 +190,8 @@ service TMSRemote {
     rpc releaseAggregatedStagedTargets (ReleaseAggregatedStatedTargetsRequest) returns (Void);
     // Unreleases aggregated staged targets from market
     rpc unreleaseAggregatedStagedTargets (TargetIds) returns (Void);
+    // Accepts pre-staged targets
+    rpc acceptPreStagedTargets(AcceptPreStagedTargets) returns (Void);
 
     //START SNIPPET: Alerts API
     // Posts alert message to user's view. See request comments for the parameters details.
@@ -220,7 +224,9 @@ service TMSRemote {
     rpc getMarketDataRecords (SubscribeForMarketDataRequest) returns (Records);
 
     rpc getCustomDataRecords (SubscribeForCustomDataRequest) returns (Records);
-    rpc sendCommandToCustomDataProviders(SendCommandToCustomDataProvidersRequst) returns (Void);
+    rpc sendCommandToCustomDataProviders(SendCommandToCustomDataProvidersRequest) returns (Void);
+
+    rpc setLoadedInstrumentPosition(SetInstrumentPositionRequest) returns (Void);
 
     // See service comments on top related to the subscriptions.
 
@@ -242,6 +248,6 @@ service TMSRemote {
     rpc subscribeForCustomData(stream SubscribeForCustomDataRequest) returns (stream CustomDataEvent);
     rpc subscribeForForexQuotes(stream SubscribeForForexQuotesRequest) returns (stream ForexQuoteEvent);
 
-    rpc subscribeForReport(stream SubscribeForReportRequest) returns (stream ReportEvent);
+    rpc subscribeForReport(stream SubscribeForReportRequest) returns (stream RecordEvent);
     //END SNIPPET: Subscription API
 }

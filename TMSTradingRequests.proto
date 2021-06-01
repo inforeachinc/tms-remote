@@ -10,10 +10,12 @@ import "TMSRemoteCommon.proto";
 enum PortfolioType {
     UNDEFINED = 0; // default
     Index = 1;
-    Pure = 2;
+    Market = 2;
     Linked = 3;
     Correlated = 4;
     Dynamic = 5;
+    option allow_alias = true;
+    Pure = 2; // alias to Market for backward compatibility
 }
 
 message CreateMarketPortfolioRequest {
@@ -77,6 +79,22 @@ message ReleaseAggregatedStatedTargetsRequest {
     string marketPortfolio = 1; // Name of market portfolio to release targets
     repeated int64 targetId = 2;//Id(s) of the aggregated target(s) to release
 }
+
+message AcceptPreStagedTargets {
+    repeated string stagedPortfolio = 1; // Name(s) of staged portfolio to accept targets
+    repeated int64 targetId = 2; //Id(s) of the staged target(s) to accept. Use empty set if all targets from specified portfolios should be accepted
+}
+
+//START SNIPPET: SendTargetWaveRequest
+//targetIds and messages must match each others count
+//fields should contain either single fields container (i.e. length is 1) to be applied to all targets or should be of the same size as targetIds
+message SendTargetWaveRequest {
+    repeated int64 targetId  = 1;
+    repeated FIXFields message = 2;
+    repeated Fields fields = 3;
+    bool modifyTargets = 4;
+}
+//END SNIPPET: SendTargetWaveRequest
 
 //START SNIPPET: SendOrderRequest
 // Can have
