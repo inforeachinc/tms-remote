@@ -26,6 +26,20 @@ message SubscribeForInstrumentPositionsRequest {
     string instrument = 3; //If empty will subscribe to all instruments in a category
 }
 
+//START SNIPPET: Positions API
+message SetInstrumentPositionRequest {
+    string instrument = 1;      // instrument of given position numbers
+    string currency = 2;        // ccy in which instrument position values are expressed, typically that's primary currency for given instrument
+    string categoryType = 3;    // category type to update instrument position for, can be empty if global instrument position numbers are provided
+    string categoryName = 4;    // category name for given type to update instrument position for, can be empty if global instrument position numbers are provided
+    double longQty = 5;         // long quantity for given instrument
+    double longValue = 6;       // long cash (in given ccy) for given instrument - corresponds to long quantity, i.e. value spent to buy shares
+    double shortQty = 7;        // short quantity for given instrument
+    double shortValue = 8;      // short cash (in given ccy) for given instrument - corresponds to short quantity, i.e. value obtained from selling shares
+    Fields customValues = 9;    // custom loaded values to be stored for instrument position
+}
+//END SNIPPET: Positions API
+
 message SubscribeForCashPositionsRequest {
     string categoryType = 1; //"Global" or empty for the global position currencies
     string categoryName = 2;//The name of the category, e.g. "Account1" for the categoryType="Account"
@@ -117,7 +131,7 @@ message SubscribeForCustomDataRequest {
     repeated string field = 3; // Fields to be sent. All fields will be sent if not set.
 }
 
-message SendCommandToCustomDataProvidersRequst {
+message SendCommandToCustomDataProvidersRequest {
     string dataSourceName = 1; // Name of data source
     repeated string providerName = 2; // Provider names (optional)
     string command = 3;
@@ -261,4 +275,9 @@ message VolumeCurveResponse {
 
 message FIXMessagesRequest {
     repeated FIXFields message = 1;
+}
+
+message FIXConnectionMessagesRequest {
+    string connectionName = 1;
+    repeated FIXFields message = 2;
 }

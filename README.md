@@ -46,3 +46,41 @@ or
 
 4. Run the sample application
 `dotnet run`
+
+### Instructions how to run C++ sample
+
+##### Windows
+
+0. Prerequisites:
+   - Git
+   - CMake 3.5.1 or greater
+   - Visual Studio 2015 Update 3 or greater
+
+1. Install _vcpkg_ package manager to any convenient location (e.g. _%TOOLS_DIR%_)
+```
+cd %TOOLS_DIR%
+git clone https://github.com/microsoft/vcpkg
+.\vcpkg\bootstrap-vcpkg.bat
+```
+
+2. Install gRPC libraries
+```
+.\vcpkg\vcpkg.exe install grpc
+```
+
+3. Build the sample application (here _%SAMPLES_HOME%_ is a directory with this readme file)
+```
+cd %SAMPLES_HOME%\cpp-sample
+mkdir build
+cmake -B build -S . "-DCMAKE_TOOLCHAIN_FILE=%TOOLS_DIR%/vcpkg/scripts/buildsystems/vcpkg.cmake"
+cmake --build build --config Debug
+```
+
+(Build config _Debug_ can be replaced with _Release_)
+
+4. Get cert.pem SSL certificate file from InfoReach and put it to the current folder
+
+5. Run the application
+```
+.\build\Debug\tms_client_app.exe
+```
