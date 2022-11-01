@@ -82,16 +82,27 @@ enum HandlInst {
 enum FIXTag {
     FIXTag_Undefined=0;
     FIXTag_Account=1;
+    FIXTag_AvgPx=6;
+    FIXTag_CumQty=14;
+    FIXTag_Currency=15;
+    FIXTag_ExecID=17;
+    FIXTag_ExecTransType=20;
     FIXTag_HandlInst=21;
+    FIXTag_MsgType=35;
+    FIXTag_OrderID=37;
     FIXTag_Symbol=55;
     FIXTag_Side=54;
     FIXTag_OrdType=40;
     FIXTag_OrderQty=38;
+    FIXTag_OrdStatus=39;
     FIXTag_Price=44;
     FIXTag_Text=58;
     FIXTag_LastPx=31;
     FIXTag_LastQty=32;
+    FIXTag_ExecType=150;
+    FIXTag_LeavesQty=151;
     FIXTag_TrnDestination=16501;
     FIXTag_Instrument=16505;
     FIXTag_SingleOrderTransactionId=17700;
+    FIXTag_OrderManagerId=18359;
 }

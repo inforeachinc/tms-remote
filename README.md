@@ -1,15 +1,18 @@
 TMS Remote API documentation for version 9.0
 
 ### Contents
-TMSRemote.proto - defines TMS Remote gRPC service
 
-*.proto - other proto files used by TMSRemote.proto
+TMSRemote.proto &ndash; defines TMS Remote gRPC service
 
-java-sample/TMSClientApp.java - java sample
+*.proto &ndash; other proto files used by TMSRemote.proto
 
-python-sample/sample.py - python sample
+java-sample/TMSClientApp.java &ndash; java sample
 
-cs-sample/TMSClientApp.cs - C# sample
+python-sample/sample.py &ndash; python sample
+
+cs-sample/TMSClientApp.cs &ndash; C# sample
+
+cpp-sample/ClientAppGrpc.cpp &ndash; C++ sample
 
 ### Instructions how to run Python sample
 
@@ -46,3 +49,79 @@ or
 
 4. Run the sample application
 `dotnet run`
+
+### Instructions how to run C++ sample
+
+#### Windows
+
+0. Prerequisites:
+   - Git
+   - CMake 3.13 or greater
+   - Visual Studio 2015 Update 3 or greater
+
+1. Install _vcpkg_ package manager to any convenient location (e.g. _%TOOLS_DIR%_)
+```
+cd %TOOLS_DIR%
+git clone https://github.com/microsoft/vcpkg
+.\vcpkg\bootstrap-vcpkg.bat
+```
+
+2. Install gRPC libraries
+```
+.\vcpkg\vcpkg.exe install grpc
+```
+
+3. Build a sample application (here _%SAMPLES_HOME%_ is a directory with this readme file)
+```
+cd %SAMPLES_HOME%\cpp-sample
+mkdir build
+cmake -B build -S . "-DCMAKE_TOOLCHAIN_FILE=%TOOLS_DIR%/vcpkg/scripts/buildsystems/vcpkg.cmake"
+cmake --build build --config Release
+```
+
+(Build config _Release_ can be replaced with _Debug_)
+
+4. Get cert.pem SSL certificate file from InfoReach and put it to the current folder
+
+5. Run the application
+```
+.\build\Release\tms_client_app.exe
+```
+
+#### Linux
+
+0. Prerequisites:
+   - Git
+   - CMake 3.13 or greater
+
+1. Install tools required to build gRPC
+```
+sudo apt install -y build-essential autoconf libtool pkg-config
+```
+
+2. Download and install gRPC libraries to any convenient directory (e.g. _$GRPC_HOME_)
+```
+cd $GRPC_HOME
+git clone --recurse-submodules -b v1.50.1 --depth 1 --shallow-submodules https://github.com/grpc/grpc
+mkdir grpc/build
+cd grpc/build
+cmake .. -DCMAKE_BUILD_TYPE=Release -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=$GRPC_HOME
+make -j 4
+make install
+export PATH="$GRPC_HOME/bin:$PATH"
+```
+
+3. Build a sample application (here _$SAMPLES_HOME_ is a directory with this readme file)
+```
+cd $SAMPLES_HOME/cpp-sample
+mkdir build
+cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
+
+4. Get cert.pem SSL certificate file from InfoReach and put it to the current folder
+
+5. Run the application
+```
+./build/tms_client_app
+```
