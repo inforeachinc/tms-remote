@@ -1,4 +1,6 @@
 #include <chrono>
+#include <stdexcept>
+#include <thread>
 
 #include <grpcpp/grpcpp.h>
 #include <tmsapigrpc/TMSRemote.grpc.pb.h>
@@ -45,7 +47,7 @@ public:
         std::thread* pThread = listenerThread_.exchange(new std::thread(&AsyncListener::run, this, streamSupplier, request, consumer));
         if (pThread)
         {
-            throw std::exception("start() may only be called once");
+            throw std::runtime_error("start() may only be called once");
         }
     }
 

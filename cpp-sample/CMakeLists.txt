@@ -1,15 +1,15 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.13)
 
 project(TMSClientApp)
 
 
-# Look for gRPC installation
-find_package(gRPC CONFIG REQUIRED)
-message(STATUS "Using gRPC ${gRPC_VERSION}")
-
 # Look for Protobuf installation
 find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using Protobuf ${Protobuf_VERSION}")
+
+# Look for gRPC installation
+find_package(gRPC CONFIG REQUIRED)
+message(STATUS "Using gRPC ${gRPC_VERSION}")
 
 # Look for Protobuf compiler to process *.proto files
 find_program(_PROTOBUF_PROTOC protoc)
@@ -40,7 +40,7 @@ foreach(TMS_API_PROTO_NAME
 		--plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
 		"${TMS_API_PROTO}"
 	  DEPENDS "${TMS_API_PROTO}")
-	list(APPEND TMS_API_PROTO_SRCS ${TMS_API_PROTO_SRC})
+    list(APPEND TMS_API_PROTO_SRCS ${TMS_API_PROTO_SRC})
     list(APPEND TMS_API_PROTO_HDRS ${TMS_API_PROTO_HDR})
     list(APPEND TMS_API_GRPC_SRCS ${TMS_API_GRPC_SRC})
     list(APPEND TMS_API_GRPC_HDRS ${TMS_API_GRPC_HDR})
