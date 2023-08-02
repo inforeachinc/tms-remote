@@ -185,6 +185,26 @@ public:
     }
 //END SNIPPET: Pause or Resume Market Target
 
+//START SNIPPET: Terminate Market Target
+    bool terminate_market_target(long long target_id, bool cancelOpenOrders)
+    {
+        ::grpc::ClientContext context;
+        ::TerminateMarketTargetsRequest request;
+        ::Void response;
+        
+        request.add_targetid(target_id);
+        request.set_cancelopenorders(cancelOpenOrders);
+        auto status = client_->terminateMarketTargets(&context, request, &response);
+
+        if (!status.ok())
+        {
+            std::cout << "unable to terminate market target: " << status.error_message() << std::endl;
+        }
+
+        return status.ok();
+    }
+//END SNIPPET: Terminate Market Target
+
 //START SNIPPET: Modify Market Targets
     bool modify_market_target(long long target_id, const std::string& destination, ::WaveSizeType wave_size_type, double wave_size)
     {
