@@ -559,6 +559,7 @@ public:
         if (!status.ok())
         {
             std::cout << "unable to send target order: " << status.error_message() << std::endl;
+            printErrorDetails(context);
         }
 
         return status.ok();
@@ -722,6 +723,36 @@ public:
         if (isDebug()) std::cout << get_timestamp() << caller<< "Marking order processor as inactive..." << std::endl;
         keepProcessingOrders_.store(false);
         if (isDebug()) std::cout << get_timestamp() << caller << "Order processor stop flag is set" << std::endl;
+    }
+
+    void printErrorDetails(const grpc::ClientContext& context)
+    {
+        const auto& trailing_metadata = context.GetServerTrailingMetadata();
+
+        auto iter = trailing_metadata.find("exceptionclass");
+        if (iter != trailing_metadata.end())
+        {
+            std::cout << "ExceptionClass: " << iter->second << std::endl;
+        }
+        iter = trailing_metadata.find("errorcode");
+        if (iter != trailing_metadata.end())
+        {
+            std::cout << "ErrorCode: " << iter->second << std::endl;
+        }
+
+        iter = trailing_metadata.find("childexceptionscount");
+        if (iter != trailing_metadata.end())
+        {
+            int child_exceptions_count = std::stoi(std::string(iter->second.begin(), iter->second.end()));
+            for (int i = 0; i < child_exceptions_count; i++)
+            {
+                iter = trailing_metadata.find("childexceptionmessage_" + std::to_string(i));
+                if (iter != trailing_metadata.end())
+                {
+                    std::cout << "\tChildException: " << iter->second << std::endl;
+                }
+            }
+        }
     }
 
     void setDebug(bool debug)
