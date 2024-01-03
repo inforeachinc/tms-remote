@@ -1,3 +1,3 @@
-Instrument,Side,TgtQty,TgtOrdType,SetPxTo,ClientName
-IBM,49,1000,50,BidPx:AskPx,Client1
-GOOG,50,1000,50,BidPx:AskPx,Client2
+Instrument,Side,TgtQty,TgtOrdType,SetPxTo,ClientName,HardLimitByTgtPx
+IBM,49,1000,50,BidPx:AskPx,Client1,79
+GOOG,50,1000,50,BidPx:AskPx,Client2,79
