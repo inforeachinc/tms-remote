@@ -14,6 +14,20 @@ cs-sample/TMSClientApp.cs &ndash; C# sample
 
 cpp-sample/ClientAppGrpc.cpp &ndash; C++ sample
 
+### Instructions how to run Java sample with Java&Maven
+
+1. Change current folder to _java-sample_  
+`cd java-sample/`
+
+2. Get cert.pem SSL certificate file from InfoReach and put it to the current folder
+
+3. Run the following command to install dependencies and build a sample application
+`mvn compile`
+
+4. Run the following command to install dependencies, build **and run** a sample application
+`mvn install`
+
+
 ### Instructions how to run Python sample
 
 1. Change current folder to _python-sample_  
