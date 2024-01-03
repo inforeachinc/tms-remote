@@ -5,6 +5,11 @@
     <artifactId>slicer-sample</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <properties>
+        <protobuf.version>3.24.4</protobuf.version>
+        <grpc.version>1.43.3</grpc.version>
+    </properties>
+
     <build>
         <sourceDirectory>.</sourceDirectory>
 
@@ -32,9 +37,9 @@
                 <artifactId>protobuf-maven-plugin</artifactId>
                 <version>0.6.1</version>
                 <configuration>
-                    <protocArtifact>com.google.protobuf:protoc:3.12.0:exe:${os.detected.classifier}</protocArtifact>
+                    <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
                     <pluginId>grpc-java</pluginId>
-                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.35.0:exe:${os.detected.classifier}</pluginArtifact>
+                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
                     <protoSourceRoot>..</protoSourceRoot>
                     <includes><include>*.proto</include></includes>
                 </configuration>
@@ -77,9 +82,15 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-all</artifactId>
-            <version>1.35.0</version>
+            <version>${grpc.version}</version>
         </dependency>
 
         <dependency>
@@ -98,6 +109,12 @@
             <groupId>io.perfmark</groupId>
             <artifactId>perfmark-api</artifactId>
             <version>0.23.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>jsr250-api</artifactId>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 </project>
