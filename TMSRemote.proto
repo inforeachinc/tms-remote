@@ -86,9 +86,9 @@ service TMSRemote {
     // Adds targets to the existing portfolio. See request comments for the parameters details.
     // Returns the ids of the newly added targets. Those ids can be later used for target operations like modify/pause/resume/terminate
     rpc addMarketTargets (AddMarketTargetsRequest) returns (TargetIds);
-    // Modifies existing targets. See request comments for the parameters details.
+    // Modifies existing market/execution targets. See request comments for the parameters details.
     rpc modifyMarketTargets (ModifyTargetsRequest) returns (Void);
-    // Removes existing targets.
+    // Removes existing market/execution targets.
     rpc removeMarketTargets (TargetIds) returns (Void);
     // Gets snapshot of target IDs from existing portfolio. In case up-to-date target information is needed the application should
     // instead subscribe to the targets using _subscribeForMarketTargets_ call.
@@ -99,7 +99,7 @@ service TMSRemote {
 
     //START SNIPPET: Target Status RPC
 
-    // Terminates active/paused/suspended targets with specified IDs.
+    // Terminates active/paused/suspended market/execution targets with specified IDs.
     // Already terminated targets cannot be terminated once again and
     // cannot be resumed/paused/suspended anymore. Terminated targets cannot be
     // traded in any way. For terminated targets TgtQty (if defined) is being reduced
@@ -107,18 +107,29 @@ service TMSRemote {
     // See request comments for the parameters details.
     rpc terminateMarketTargets(TerminateMarketTargetsRequest) returns (Void);
 
-    // Pauses active targets with specified IDs.
+    // Pauses active market/execution targets with specified IDs.
     // Already paused (or auto-paused) and terminated targets cannot be paused.
     // Paused targets aren't traded by AutoTrader analytic, but can be traded manually
     // and by client application.
     // See request comments for the parameters details.
     rpc pauseMarketTargets(PauseMarketTargetsRequest) returns (Void);
 
-    // Resumes (makes active) previously paused/auto-paused targets with specified IDs.
+    // Resumes (makes active) previously paused/auto-paused market/execution targets with specified IDs.
     // Active and terminated targets cannot be resumed. Active targets can be traded
     // manually, by client application and by AutoTrader analytic.
     // See request comments for the parameters details.
     rpc resumeMarketTargets(ResumeMarketTargetsRequest) returns (Void);
+
+    // Gets execution target records snapshot. In case up-to-date target information is needed the application should
+    // instead subscribe to the targets using _subscribeForExecutionTargets_ call.
+    rpc getExecutionTargets(TargetIds) returns (Targets);
+
+    // Extracts some qty from market target to new execution target
+    // Returns ID of the created execution target
+    rpc splitMarketTarget(SplitMarketTargetRequest) returns (TargetId);
+
+    // Combines qty from one or few execution targets to a single execution target
+    rpc combineExecutionTargets(CombineExecutionTargetsRequest) returns (Void);
 
     //END SNIPPET: Target Status RPC
 
@@ -239,6 +250,7 @@ service TMSRemote {
     //START SNIPPET: Subscription API
     rpc subscribeForMarketPortfolios (stream SubscribeForPortfoliosRequest) returns (stream PortfolioEvent);
     rpc subscribeForMarketTargets (stream SubscribeForTargetsRequest) returns (stream TargetEvent);
+    rpc subscribeForExecutionTargets (stream SubscribeForTargetsRequest) returns (stream TargetEvent);
     rpc subscribeForOrders (stream SubscribeForOrdersRequest) returns (stream OrderEvent);
     rpc subscribeForStagedPortfolios (stream SubscribeForPortfoliosRequest) returns (stream PortfolioEvent);
     rpc subscribeForStagedTargets (stream SubscribeForTargetsRequest) returns (stream TargetEvent);

@@ -54,26 +54,36 @@ message AddTargetsRequest {
 //START SNIPPET: ModifyTargetsRequest
 // Note: if some string field has to be set to null value, need to use "<NULL>" constant for it
 message ModifyTargetsRequest {
-    repeated int64 targetId = 1; //Id(s) of the target(s) to modify (target ids returned when new targets are added).
+    repeated int64 targetId = 1; //Id(s) of the market/execution target(s) to modify (target ids returned when new targets are added).
     repeated Fields fields = 2; //If only one fields container - all targets will be modified with it. Otherwise there must be a field container per target.
 }
 //END SNIPPET: ModifyTargetsRequest
 
 //START SNIPPET: TargetStatusRequests
 message TerminateMarketTargetsRequest {
-    repeated int64 targetId = 1; //Id(s) of the target(s) to terminate (target ids returned when new targets are added).
+    repeated int64 targetId = 1; //Id(s) of the market/execution target(s) to terminate (target ids returned when new targets are added).
     bool cancelOpenOrders = 2; //indicates whether all open outstanding (sent to market) orders for specified targets should be canceled
 }
 
 message PauseMarketTargetsRequest {
-    repeated int64 targetId = 1;//Id(s) of the target(s) to pause (target ids returned when new targets are added).
+    repeated int64 targetId = 1;//Id(s) of the market/execution target(s) to pause (target ids returned when new targets are added).
     bool cancelOpenOrders = 2; //indicates whether all open outstanding (sent to market) orders for specified targets should be canceled
 }
 
 message ResumeMarketTargetsRequest {
-    repeated int64 targetId = 1;//Id(s) of the target(s) to resume (target ids returned when new targets are added).
+    repeated int64 targetId = 1;//Id(s) of the market/execution target(s) to resume (target ids returned when new targets are added).
 }
 //END SNIPPET: TargetStatusRequests
+
+message SplitMarketTargetRequest {
+    int64 targetId = 1; // Id of the market/execution target to split
+    double quantity = 2; // Quantity to split
+}
+
+message CombineExecutionTargetsRequest {
+    repeated int64 fromTargetId = 1; // Id(s) of the execution target(s) to combine
+    int64 intoTargetId = 2; // Id of the execution target to receive quantity (can be skipped)
+}
 
 message ReleaseAggregatedStatedTargetsRequest {
     string marketPortfolio = 1; // Name of market portfolio to release targets
@@ -179,6 +189,10 @@ message SubscribeForOrdersRequest {
 
 message PortfolioNames {
     repeated string portfolioName = 1;
+}
+
+message TargetId {
+    int64 targetId = 1;
 }
 
 //START SNIPPET: TargetIds
