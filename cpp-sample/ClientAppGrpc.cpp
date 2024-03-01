@@ -88,6 +88,26 @@ public:
     }
 //END SNIPPET: Modify Portfolio
 
+//START SNIPPET: Ping gRPC connection
+    bool ping()
+    {
+        static int64_t pingId = 1;
+        grpc::ClientContext context;
+        PingInfo request, response;
+
+        request.set_pingid(pingId++);
+
+        auto status = client_->ping(&context, request, &response);
+
+        if (!status.ok())
+        {
+            std::cout << "ping failed: " << status.error_message() << std::endl;
+        }
+
+        return status.ok();
+    }
+//END SNIPPET: Ping gRPC connection
+
 //START SNIPPET: Remove Portfolio
     bool remove_market_portfolio(const std::string& portfolio_name)
     {
