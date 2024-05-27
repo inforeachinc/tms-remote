@@ -101,6 +101,14 @@ private:
             deadline = std::chrono::system_clock::now() + timeout;
             if (isDebug()) std::cout << get_timestamp() << logPrefix_ << "Before AsyncNext()..." << std::endl;
             nextStatus = queue_.AsyncNext(&responseTag, &ok, deadline);
+            if (!ok)
+            {
+                std::cout << get_timestamp() << logPrefix_ << "Subscription call is dead!" << std::endl;
+                Event disconnectEvent;
+                disconnectEvent.set_feedstatus(FeedStatus::Disconnected);
+                consumer(disconnectEvent, logPrefix_);
+                break;
+            }
             if (isDebug()) std::cout << get_timestamp() << logPrefix_ << "After AsyncNext(), responseTag==" << std::dec << (long long)responseTag << std::endl;
             if (!threadShouldContinue())
             {
