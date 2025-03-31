@@ -225,8 +225,16 @@ message InstrumentInfosByAlternateIdRequest {
     string alternateInstrId = 2;
 }
 
+message InstrumentInfosByExchangeRequest {
+    string exchange = 1;
+}
+
 message InstrumentInfosResponse {
     repeated Fields instrumentInfo = 1;
+}
+
+message InstrumentInfoResponse {
+    Fields instrumentInfo = 1;
 }
 
 message IdsResponse {

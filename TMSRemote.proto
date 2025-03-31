@@ -222,6 +222,7 @@ service TMSRemote {
     //START SNIPPET: Security Master API
     rpc getInstrumentInfos (InstrumentInfosRequest) returns (InstrumentInfosResponse);
     rpc getInstrumentInfosByAlternateId (InstrumentInfosByAlternateIdRequest) returns (InstrumentInfosResponse);
+    rpc getInstrumentInfosByExchange (InstrumentInfosByExchangeRequest) returns (stream InstrumentInfoResponse);
     rpc getInstrumentAlternateIdSources (Void) returns (IdsResponse);
 
     rpc getExchangeIds (Void) returns (IdsResponse);
