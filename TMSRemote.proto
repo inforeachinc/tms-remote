@@ -8,6 +8,7 @@ import "TMSRemoteCommon.proto";
 import "TMSRemoteEvents.proto";
 import "TMSRemoteRequests.proto";
 import "TMSTradingRequests.proto";
+import "TMSClientSetupRequests.proto";
 
 //  Represents the communication API with the remote TMS (trade management system).
 //
@@ -96,6 +97,8 @@ service TMSRemote {
     // Gets target records snapshot. In case up-to-date target information is needed the application should
     // instead subscribe to the targets using _subscribeForMarketTargets_ call.
     rpc getMarketTargets(TargetIds) returns (Targets);
+    // Links multiple market targets into multileg group
+    rpc linkMultilegMarketTargets(LinkMultilegTargetsRequest) returns (Void);
 
     //START SNIPPET: Target Status RPC
 
@@ -138,6 +141,8 @@ service TMSRemote {
     rpc sendPortfolioOrders(PortfolioNames) returns (Void);
     // Sends target orders. See request comments for the parameters details.
     rpc sendTargetWave(SendTargetWaveRequest) returns (Void);
+    // Sends multileg target order message "AB" for leg targets. See request comments for the parameters details.
+    rpc sendTargetMultilegOrder(SendTargetMultilegOrderRequest) returns (Void);
     // Sends either portfolio or non-portfolio orders. See request comments for the parameters details.
     rpc sendOrders(SendOrdersRequest) returns (Void);
     // Modifies orders. See request comments for the parameters details.
@@ -269,4 +274,44 @@ service TMSRemote {
 
     rpc subscribeForReport(stream SubscribeForReportRequest) returns (stream RecordEvent);
     //END SNIPPET: Subscription API
+
+    //START SNIPPET: ClientSetup API
+    rpc getClientNames(Void) returns (ClientNames);
+    rpc doesClientExist(ClientName) returns (ExistsResponse);
+    rpc getClient(ClientName) returns (ClientInfo);
+    rpc getClientAccountIDs(ClientName) returns (AccountIDs);
+    rpc getClientCustomProperty(ClientPropertyRequest) returns (PropertyValue);
+    rpc getClientNamesForCustomID(CustomID) returns (ClientNames);
+    rpc createClient(ClientInfoWithAccounts) returns (Void);
+    rpc createClients(ClientInfosWithAccounts) returns (Void);
+    rpc updateClient(ClientInfo) returns (Void);
+    rpc updateClients(ClientsUpdate) returns (Void);
+    rpc updateClientInfos(ClientInfos) returns (Void);
+    rpc getAccountIDs(Void) returns (AccountIDs);
+    rpc getClientName(AccountID) returns (ClientName);
+    rpc doesAccountExist(AccountID) returns (ExistsResponse);
+    rpc getClientAccount(AccountID) returns (AccountInfo);
+    rpc getClientAccountCustomProperty(AccountPropertyRequest) returns (PropertyValue);
+    rpc getClientAccountsForCustomID(CustomID) returns (AccountIDs);
+    rpc createClientAccount(AccountInfo) returns (Void);
+    rpc createClientAccounts(AccountInfos) returns (Void);
+    rpc updateClientAccount(AccountInfo) returns (Void);
+    rpc updateAccountInfos(AccountInfos) returns (Void);
+    rpc updateAccounts(AccountsUpdate) returns (Void);
+    rpc updateClientSetupData(ClientSetupUpdate) returns (Void);
+
+    rpc getCommissionKeyFields(Void) returns (CommissionKeyFields);
+    rpc getCommissionInfos(Void) returns (CommissionInfos);
+    rpc getCommissionInfosForClients(ClientNames) returns (CommissionInfos);
+    rpc getCommissionInfo(CommissionKey) returns (CommissionInfo);
+    rpc addCommissionInfo(CommissionInfo) returns (Void);
+    rpc addCommissionInfos(CommissionInfos) returns (Void);
+    rpc updateCommissionInfo(CommissionInfo) returns (Void);
+    rpc updateCommissionInfos(CommissionInfos) returns (Void);
+
+    rpc getAllTradingLimits(Void) returns (TradingLimits);
+    rpc getTradingLimit(TradingLimitID) returns (TradingLimit);
+    rpc getTradingLimits(TradingLimitIDs) returns (TradingLimits);
+    rpc updateTradingLimits(TradingLimitsUpdate) returns (Void);
+    //END SNIPPET: ClientSetup API
 }

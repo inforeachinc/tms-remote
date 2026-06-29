@@ -46,6 +46,12 @@ message AddMarketTargetsRequest {
 }
 //END SNIPPET: AddTargetsRequest
 
+message LinkMultilegTargetsRequest {
+    repeated int64 targetId  = 1; //Ids of targets to be linked
+    string targetCorrelatingInfo = 2; //The correlating info string to be set in linked targets
+    repeated Fields fields = 3; //Optional, must match targetId length. It'll modify targets with the fields before linking them.
+}
+
 message AddTargetsRequest {
     string portfolio = 1; //A name of the portfolio to add targets to.
     repeated Fields fields = 2; //Fields of the added target(s)
@@ -105,6 +111,24 @@ message SendTargetWaveRequest {
     bool modifyTargets = 4;
 }
 //END SNIPPET: SendTargetWaveRequest
+
+//START SNIPPET: SendTargetMultiegOrderRequest
+//A request to send an AB order message for the portfolio targets linked by correlating info.
+// portfolio a portfolio name the targets belong to, required
+// targetCorrelatingInfo a string that links multileg targets, required
+// parentMessage optional fields to be set in a parent AB message
+// legMessageMap optional map of target id to FIX fields to be applied to the leg part of the FIX message
+// legTargetFieldMap optional map of target id to target field. Those field either modify the target or used only for sending. See 'modifyTargets' param
+// modifyTargets used with legTargetFieldMap. Determines if leg targets are modified (true) or if field values used only when sending and then reverted.
+message SendTargetMultilegOrderRequest {
+    string portfolio = 1;
+    string targetCorrelatingInfo = 2;
+    FIXFields parentMessage = 3;
+    map<int64, FIXFields> legMessageMap = 4;
+    map<int64, Fields> legTargetFieldMap = 5;
+    bool modifyTargets = 6;
+}
+//END SNIPPET: SendTargetMultilegOrderRequest
 
 //START SNIPPET: SendOrderRequest
 // Can have

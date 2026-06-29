@@ -1,0 +1,264 @@
+syntax = "proto3";
+
+option java_package = "com.inforeach.eltrader.tms.api.grpc";
+
+// Contains requests sent to the TMS client setup tool and responses for these requests
+
+message ExistsResponse {
+    bool exists = 1;
+}
+
+message ClientExistsRequest {
+    string clientName = 1;
+}
+
+message AccountExistsRequest {
+    string accountID = 1;
+}
+
+message ClientName {
+    string clientName = 1;
+}
+
+message ClientNames {
+    repeated string clientName = 1;
+}
+
+message AccountID {
+    string accountID = 1;
+}
+
+message AccountIDs {
+    repeated string accountID = 1;
+}
+
+message AccountNames {
+    repeated string accountName = 1;
+}
+
+message AccountInfo {
+    string clientName = 1;
+    string accountID = 2;
+    string accountName = 3;
+    string accountType = 4;
+    string accountDescription = 5;
+    map<string, string> customFields = 6;
+}
+
+message AccountInfos {
+    repeated AccountInfo item = 1;
+}
+
+message AccountsUpdate {
+    AccountIDs accounts = 1;
+    map<string, string> updateFields = 2;
+}
+
+message ClientPropertyRequest {
+    string clientName = 1;
+    string propertyName = 2;
+}
+
+message AccountPropertyRequest {
+    string accountID = 1;
+    string propertyName = 2;
+}
+
+message PropertyValue {
+    string propertyValue = 1;
+}
+
+message CustomID {
+    string idSource = 1;
+    string id = 2;
+}
+
+enum ClientType {
+    Undefined = 0;
+    Self = 1;
+    Institutional = 2;
+    BrokerDealer = 3;
+    Individual = 4;
+    Employee = 5;
+}
+
+message ClientInfo {
+    string clientName = 1;
+    ClientType clientType = 2;
+    string clientDescription = 3;
+    map<string, string> customFields = 4;
+}
+
+message ClientInfos {
+    repeated ClientInfo item = 1;
+}
+
+message ClientInfoWithAccounts {
+    ClientInfo clientInfo = 1;
+    repeated AccountInfo account = 2;
+}
+
+message ClientInfosWithAccounts {
+    repeated ClientInfoWithAccounts item = 1;
+}
+
+message ClientsUpdate {
+    ClientNames clients = 1;
+    map<string, string> updateFields = 2;
+}
+
+message ClientSetupUpdate {
+    repeated ClientInfoWithAccounts clientToCreate = 1;
+    repeated ClientInfo clientToUpdate = 2;
+    repeated AccountInfo accountToCreate = 3;
+    repeated AccountInfo accountToUpdate = 4;
+}
+
+message CommissionKeyFields {
+    repeated string keyField = 1;
+}
+
+message CommissionKey {
+    map<string, string> keyFieldValue = 1;
+}
+
+message CommissionKeys {
+    repeated CommissionKey item = 1;
+}
+
+enum CommissionType {
+    CommType_Undefined=0;
+    CommType_PerShare=49;
+    CommType_Pct=50;
+    CommType_Abs=51;
+    CommType_CPS=82;
+    CommType_BPS=88;
+    CommType_PerMillion=89;
+    CommType_PerContract=90;
+}
+
+enum CommissionRoundingRule {
+    CommRounding_None=0;
+    CommRounding_Up=1;
+    CommRounding_Down=2;
+    CommRounding_Nearest=3;
+    CommRounding_Bankers=4;
+}
+
+enum CommissionBracketVolumeUnit {
+    CommBracketVolumeUnit_Price=0;
+    CommBracketVolumeUnit_Value=1;
+    CommBracketVolumeUnit_Shares=2;
+    CommBracketVolumeUnit_Contracts=3;
+    CommBracketVolumeUnit_TotalValue=4;
+    CommBracketVolumeUnit_TotalShares=5;
+    CommBracketVolumeUnit_TotalContracts=6;
+}
+
+message CommissionBracket {
+    CommissionType type = 1;
+    double rate = 2;
+    double upperVolumeLimit = 3;
+}
+
+message CommissionInfo {
+    CommissionKey key = 1;
+    CommissionType type = 2;
+    double rate = 3;
+    double minCharge = 4;
+    double maxCharge = 5;
+    bool allIn = 6;
+    CommissionBracketVolumeUnit bracketVolumeUnit = 7;
+    repeated CommissionBracket bracket = 8;
+    CommissionRoundingRule roundingRule = 9;
+}
+
+message CommissionInfos {
+    repeated CommissionInfo info = 1;
+}
+
+message TradingLimitID {
+    int32 tradingLimitID = 1;
+}
+
+message TradingLimitIDs {
+    repeated TradingLimitID tradingLimitIDs = 1;
+}
+
+enum TradingLimitTreatment {
+    TradingLimitTreatment_Block=0;
+    TradingLimitTreatment_Reject=1;
+}
+
+enum TradingLimitType {
+    TradingLimitType_Custom = 0;
+    TradingLimitType_LongPosition = 1;
+    TradingLimitType_ShortPosition = 2;
+    TradingLimitType_NetPosition = 3;
+    TradingLimitType_NegativeNetPosition = 4;
+    TradingLimitType_GrossPosition = 5;
+    TradingLimitType_GrossNetPosition = 6;
+    TradingLimitType_IntradayLongPosition = 7;
+    TradingLimitType_IntradayShortPosition = 8;
+    TradingLimitType_IntradayNetPosition = 9;
+    TradingLimitType_IntradayGrossPosition = 10;
+    TradingLimitType_IntradayGrossNetPosition = 11;
+    TradingLimitType_OpenLongPosition = 12;
+    TradingLimitType_OpenShortPosition = 13;
+    TradingLimitType_OpenNetPosition = 14;
+    TradingLimitType_OpenGrossPosition = 15;
+    TradingLimitType_OpenGrossNetPosition = 16;
+    TradingLimitType_OrderSize = 17;
+    TradingLimitType_OrderLiquidity = 18;
+    TradingLimitType_OrderPriceAway = 19;
+    TradingLimitType_OrderCount = 20;
+    TradingLimitType_IntervalOrderSize = 21;
+    TradingLimitType_IntervalOrderCount = 22;
+}
+
+enum TradingLimitPositionType {
+    TradingLimitPositionType_Undefined = 0;
+    TradingLimitPositionType_Category = 1;
+    TradingLimitPositionType_Instrument = 2;
+    TradingLimitPositionType_Cash = 3;
+}
+
+enum TradingLimitUnit {
+    TradingLimitUnit_Undefined = 0;
+    TradingLimitUnit_Value = 1;
+    TradingLimitUnit_Qty = 2;
+    TradingLimitUnit_Pct = 3;
+    TradingLimitUnit_Tick = 4;
+    TradingLimitUnit_Abs = 5;
+    TradingLimitUnit_Bps = 6;
+    TradingLimitUnit_SpreadPct = 7;
+}
+
+message TradingLimit {
+    TradingLimitID id = 1;
+    bool enabled = 2;
+    string client = 3;
+    string trader = 4;
+    TradingLimitType type = 5;
+    TradingLimitPositionType positionType = 6;
+    string categoryType = 7;
+    string categoryName = 8;
+    string instrument = 9;
+    TradingLimitUnit limitUnit = 10;
+    string currency = 11;
+    TradingLimitTreatment treatment = 12;
+    double limitAmount = 13;
+    double warningThreshold = 14;
+    string condition = 15;
+    string customLimitType = 16;
+}
+
+message TradingLimits {
+    repeated TradingLimit limit = 1;
+}
+
+message TradingLimitsUpdate {
+    TradingLimits limitsToCreate = 1;
+    TradingLimits limitsToUpdate = 2;
+    TradingLimitIDs limitsToRemove = 3;
+}
